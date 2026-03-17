@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg-dark: #121212;
+  --color-bg-card: #181818;
+  --color-primary: #1DB954;
+  --color-text-main: #FFFFFF;
+  --color-text-muted: #B3B3B3;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-main);
+  background-image: radial-gradient(circle at 50% -20%, #1db9541a 0%, transparent 40%);
+  min-height: 100vh;
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-white/5 backdrop-blur-lg border border-white/10 shadow-xl;
+  }
+
+  .glass-input {
+    @apply bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all;
+  }
+
+  .btn-primary {
+    @apply bg-[#1DB954] text-black font-bold hover:scale-105 hover:bg-[#1ed760] transition-all transform active:scale-95 shadow-lg shadow-green-900/20;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #121212;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Audio Visualizer Animation */
+@keyframes bounce {
+
+  0%,
+  100% {
+    height: 10%;
+  }
+
+  50% {
+    height: 100%;
+  }
+}
+
+.visualizer-bar {
+  animation: bounce 1s infinite ease-in-out;
+}
