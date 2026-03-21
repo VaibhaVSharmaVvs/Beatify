@@ -1,36 +1,44 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000';
+const BASE_URL = 'http://127.0.0.1:8000';
 
-const api = axios.create({
-    baseURL: API_URL,
+const getAuthHeaders = (token) => ({
+    headers: { 'Authorization': `Bearer ${token}` }
 });
 
-export const login = () => {
-    window.location.href = `${API_URL}/login`;
-};
-
 export const getPlaylists = (token) => {
-    return api.get('/playlists', { headers: { Authorization: `Bearer ${token}` } });
+    return axios.get(`${BASE_URL}/playlists`, getAuthHeaders(token));
 };
 
-export const startGame = (playlistId, token, rounds = 10) => {
-    return api.post(`/start_game?playlist_id=${playlistId}&rounds=${rounds}`, {}, { headers: { Authorization: `Bearer ${token}` } });
+export const startGame = (playlistId, token, rounds) => {
+    return axios.post(`${BASE_URL}/start_game`, null, {
+        params: { 
+            playlist_id: playlistId,
+            rounds: rounds
+        },
+        ...getAuthHeaders(token)
+    });
 };
 
 export const submitGuess = (guess, token) => {
-    return api.post('/submit_guess', guess, { headers: { Authorization: `Bearer ${token}` } });
+    return axios.post(`${BASE_URL}/submit_guess`, {
+        guess_name: guess.guess_name || '',
+        guess_artist: guess.guess_artist || '',
+        guess_album: guess.guess_album || ''
+    }, getAuthHeaders(token));
 };
 
 export const nextRound = (token) => {
-    return api.get('/next_round', { headers: { Authorization: `Bearer ${token}` } });
+    return axios.get(`${BASE_URL}/next_round`, getAuthHeaders(token));
 };
 
-export const playTrack = (token, deviceId, trackUri) => {
+export const playTrack = (token, deviceId, uri) => {
     return axios.put(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
-        uris: [trackUri],
-        position_ms: 0
+        uris: [uri]
     }, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
     });
 };
