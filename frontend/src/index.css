@@ -1,74 +1,162 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --color-bg-dark: #121212;
-  --color-bg-card: #181818;
-  --color-primary: #1DB954;
-  --color-text-main: #FFFFFF;
-  --color-text-muted: #B3B3B3;
-}
+@layer base {
+  :root {
+    --background: 220 20% 7%;
+    --foreground: 210 20% 92%;
 
-body {
-  font-family: 'Poppins', sans-serif;
-  background-color: var(--color-bg-dark);
-  color: var(--color-text-main);
-  background-image: radial-gradient(circle at 50% -20%, #1db9541a 0%, transparent 40%);
-  min-height: 100vh;
-}
+    --card: 220 18% 10%;
+    --card-foreground: 210 20% 92%;
 
-@layer utilities {
-  .glass-panel {
-    @apply bg-white/5 backdrop-blur-lg border border-white/10 shadow-xl;
-  }
+    --popover: 220 18% 10%;
+    --popover-foreground: 210 20% 92%;
 
-  .glass-input {
-    @apply bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all;
-  }
+    --primary: 141 73% 42%;
+    --primary-foreground: 220 20% 7%;
 
-  .btn-primary {
-    @apply bg-[#1DB954] text-black font-bold hover:scale-105 hover:bg-[#1ed760] transition-all transform active:scale-95 shadow-lg shadow-green-900/20;
-  }
+    --secondary: 220 16% 16%;
+    --secondary-foreground: 210 20% 85%;
 
-  .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500;
-  }
-}
+    --muted: 220 14% 14%;
+    --muted-foreground: 215 12% 50%;
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
+    --accent: 141 73% 42%;
+    --accent-foreground: 220 20% 7%;
 
-::-webkit-scrollbar-track {
-  background: #121212;
-}
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 40% 98%;
 
-::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 4px;
-}
+    --border: 220 14% 18%;
+    --input: 220 14% 18%;
+    --ring: 141 73% 42%;
 
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
+    --radius: 0.75rem;
 
-/* Audio Visualizer Animation */
-@keyframes bounce {
+    --sidebar-background: 220 18% 10%;
+    --sidebar-foreground: 210 20% 92%;
+    --sidebar-primary: 141 73% 42%;
+    --sidebar-primary-foreground: 220 20% 7%;
+    --sidebar-accent: 220 16% 16%;
+    --sidebar-accent-foreground: 210 20% 85%;
+    --sidebar-border: 220 14% 18%;
+    --sidebar-ring: 141 73% 42%;
 
-  0%,
-  100% {
-    height: 10%;
-  }
-
-  50% {
-    height: 100%;
+    /* Game-specific tokens */
+    --game-surface: 220 16% 12%;
+    --game-surface-hover: 220 16% 15%;
+    --game-success: 141 73% 42%;
+    --game-warning: 38 92% 50%;
+    --game-error: 0 72% 51%;
+    --game-glow: 141 73% 42%;
   }
 }
 
-.visualizer-bar {
-  animation: bounce 1s infinite ease-in-out;
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    @apply tracking-tight;
+  }
+}
+
+@layer components {
+  .game-card {
+    @apply bg-card rounded-2xl border border-border/50 p-6;
+    box-shadow: 0 4px 24px -4px hsl(0 0% 0% / 0.4);
+  }
+
+  .game-card-hover {
+    @apply game-card transition-all duration-300 ease-out;
+  }
+
+  .game-card-hover:hover {
+    box-shadow: 0 8px 32px -4px hsl(var(--game-glow) / 0.15);
+    border-color: hsl(var(--primary) / 0.3);
+    transform: translateY(-2px);
+  }
+
+  .game-card-hover:active {
+    transform: scale(0.98);
+  }
+
+  .game-input {
+    @apply w-full rounded-xl bg-muted border border-border/50 px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all duration-200;
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+  }
+
+  .game-badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium;
+    background: hsl(var(--primary) / 0.12);
+    color: hsl(var(--primary));
+    border: 1px solid hsl(var(--primary) / 0.2);
+  }
+
+  .game-badge-warning {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium;
+    background: hsl(var(--game-warning) / 0.12);
+    color: hsl(var(--game-warning));
+    border: 1px solid hsl(var(--game-warning) / 0.2);
+  }
+
+  .score-display {
+    font-family: 'JetBrains Mono', monospace;
+    @apply tabular-nums font-semibold;
+  }
+
+  .glow-text {
+    text-shadow: 0 0 20px hsl(var(--primary) / 0.4);
+  }
+
+  .cover-image {
+    @apply rounded-xl overflow-hidden aspect-square object-cover;
+    box-shadow: 0 8px 32px -8px hsl(0 0% 0% / 0.6);
+  }
+
+  .fade-in {
+    animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .slide-up {
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .scale-in {
+    animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; filter: blur(4px); }
+  to { opacity: 1; filter: blur(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); filter: blur(4px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4); }
+  50% { box-shadow: 0 0 20px 4px hsl(var(--primary) / 0.2); }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
 }
