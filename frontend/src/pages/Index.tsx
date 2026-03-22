@@ -238,9 +238,7 @@ const Index = () => {
         <GameOver
           totalScore={score}
           totalRounds={settings.rounds}
-          lastSongImage={history[history.length - 1].image_url}
-          lastSongName={history[history.length - 1].correct_name}
-          lastSongArtist={history[history.length - 1].correct_artist}
+          history={history}
           onPlayAgain={() => {
             setScore(0);
             setHistory([]);
