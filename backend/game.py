@@ -37,30 +37,52 @@ def start_game(playlist_id: str, rounds: int = 10, authorization: str = Header(N
     
     headers = get_spotify_headers(token)
     
-    # Fetch tracks
-    tracks_url = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks"
-    all_tracks = []
+    # First get total tracks
+    tracks_url = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks?limit=1"
+    response = requests.get(tracks_url, headers=headers)
+    if response.status_code != 200:
+        raise HTTPException(status_code=400, detail="Failed to fetch playlist data")
     
-    while tracks_url:
-        response = requests.get(tracks_url, headers=headers)
-        if response.status_code != 200:
-            break
-        data = response.json()
-        for item in data.get("items", []):
-            track = item.get("track")
-            if track:
-                all_tracks.append(track)
-        tracks_url = data.get("next")
-        if len(all_tracks) >= 50: # Limit to 50 for speed
-            break
-            
-    print(f"Found {len(all_tracks)} tracks")
-    if len(all_tracks) < 1:
+    total_tracks = response.json().get("total", 0)
+    if total_tracks < 1:
         raise HTTPException(status_code=400, detail="Playlist must have at least 1 track")
         
-    # Sample tracks based on requested rounds
-    sample_size = min(rounds, len(all_tracks))
-    selected_tracks = random.sample(all_tracks, sample_size)
+    sample_size = min(rounds, total_tracks)
+    
+    # Pick random absolute indices across the entire massive playlist!
+    selected_indices = random.sample(range(total_tracks), sample_size)
+    
+    # Spotify limit max is 50 for track fetching safely
+    page_size = 50
+    pages_needed = {}
+    
+    # Map raw indices to their respective 50-track bucket page
+    for idx in selected_indices:
+        page_offset = (idx // page_size) * page_size
+        if page_offset not in pages_needed:
+            pages_needed[page_offset] = []
+        pages_needed[page_offset].append(idx)
+        
+    all_tracks = []
+    
+    # Fetch ONLY the pages that contain our selected random tracks
+    for offset, indices_in_page in pages_needed.items():
+        url = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks?limit={page_size}&offset={offset}"
+        data = requests.get(url, headers=headers).json()
+        items = data.get("items", [])
+        
+        for idx in indices_in_page:
+            local_idx = idx - offset
+            if local_idx < len(items):
+                track = items[local_idx].get("track")
+                # Ensure the track is valid (some extremely old playlists have null tracks)
+                if track and track.get("id"):
+                    all_tracks.append(track)
+                    
+    print(f"Randomly fetched {len(all_tracks)} distinct tracks out of {total_tracks} total!")
+    
+    random.shuffle(all_tracks)
+    selected_tracks = all_tracks[:sample_size]
     
     game_id = token[-10:] # Simple ID from token
     games[game_id] = {
