@@ -4,16 +4,14 @@ import { RotateCcw, Trophy } from "lucide-react";
 interface GameOverProps {
   totalScore: number;
   totalRounds: number;
-  lastSongImage: string;
-  lastSongName: string;
-  lastSongArtist: string;
+  history: any[];
   onPlayAgain: () => void;
 }
 
-const GameOver = ({ totalScore, totalRounds, lastSongImage, lastSongName, lastSongArtist, onPlayAgain }: GameOverProps) => {
+const GameOver = ({ totalScore, totalRounds, history, onPlayAgain }: GameOverProps) => {
   return (
     <div className="min-h-screen px-4 py-8 flex items-center justify-center">
-      <div className="max-w-sm w-full space-y-8 text-center">
+      <div className="max-w-xl w-full space-y-8 text-center">
         {/* Trophy */}
         <div className="fade-in">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20">
@@ -28,26 +26,36 @@ const GameOver = ({ totalScore, totalRounds, lastSongImage, lastSongName, lastSo
         </div>
 
         {/* Score Card */}
-        <div className="game-card slide-up" style={{ animationDelay: "0.15s" }}>
+        <div className="game-card slide-up mx-auto max-w-sm" style={{ animationDelay: "0.15s" }}>
           <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Total Score</p>
-          <p className="score-display text-5xl font-bold text-primary glow-text">{totalScore}</p>
+          <div className="flex justify-center items-end gap-1">
+            <p className="score-display text-5xl font-bold text-primary glow-text">{totalScore}</p>
+            <p className="text-2xl text-muted-foreground font-medium mb-1">/{totalRounds * 10}</p>
+          </div>
           <p className="text-sm text-muted-foreground mt-2">across {totalRounds} rounds</p>
         </div>
 
-        {/* Last Song */}
-        <div className="slide-up space-y-3" style={{ animationDelay: "0.2s" }}>
-          <p className="text-xs text-muted-foreground uppercase tracking-wider">Last Song</p>
-          <div className="mx-auto w-36 h-36">
-            <img src={lastSongImage} alt={lastSongName} className="cover-image w-full h-full" />
-          </div>
-          <div>
-            <p className="font-semibold">{lastSongName}</p>
-            <p className="text-sm text-muted-foreground">{lastSongArtist}</p>
+        {/* Songs Played History */}
+        <div className="slide-up space-y-3 w-full" style={{ animationDelay: "0.2s" }}>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider text-left pl-2">Songs Played</p>
+          <div className="flex overflow-x-auto gap-4 pb-4 snap-x flex-nowrap align-top">
+            {history.map((song, i) => (
+              <div key={i} className="flex-none w-32 snap-start">
+                <div className="w-32 h-32 mb-2 relative">
+                  <img src={song.image_url} alt={song.correct_name} className="cover-image w-full h-full" />
+                  <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md rounded-full px-2 py-0.5 text-xs font-bold text-white border border-white/10">
+                    +{song.points_earned}
+                  </div>
+                </div>
+                <p className="font-semibold text-sm truncate text-left">{song.correct_name}</p>
+                <p className="text-xs text-muted-foreground truncate text-left">{song.correct_artist}</p>
+              </div>
+            ))}
           </div>
         </div>
 
         {/* Play Again */}
-        <div className="slide-up" style={{ animationDelay: "0.3s" }}>
+        <div className="slide-up max-w-sm mx-auto" style={{ animationDelay: "0.3s" }}>
           <Button variant="spotify" size="xl" className="w-full" onClick={onPlayAgain}>
             <RotateCcw className="w-5 h-5" />
             Play Again

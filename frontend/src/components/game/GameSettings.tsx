@@ -145,7 +145,7 @@ const GameSettings = ({ score, playlists, onStartGame }: GameSettingsProps) => {
             <input
               type="range"
               min={1}
-              max={30}
+              max={20}
               value={rounds}
               onChange={(e) => setRounds(Number(e.target.value))}
               className="w-full accent-[hsl(141,73%,42%)] h-2 rounded-full bg-muted appearance-none cursor-pointer"
