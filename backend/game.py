@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException, Header
 from typing import List, Optional
 import requests
 from rapidfuzz import fuzz
+import re
 from models import Track, GameState, GuessSubmission
 
 router = APIRouter()
@@ -128,27 +129,65 @@ def submit_guess(guess: GuessSubmission, authorization: str = Header(None)):
     
     # Scoring
     points = 0
-    
-    # Fuzzy match threshold
     THRESHOLD = 90
     
+    def sanitize(text: str) -> str:
+        # Remove anything in parenthesis or brackets
+        cleaned = re.sub(r'\(.*?\)|\[.*?\]', '', text)
+        # Replace non-alphanumeric characters (like commas) with spaces
+        cleaned = re.sub(r'[^\w\s]', ' ', cleaned)
+        # Collapse multiple spaces into one and lower case
+        cleaned = re.sub(r'\s+', ' ', cleaned).strip().lower()
+        return cleaned
+
+    clean_correct_name = sanitize(current_track["name"])
+    clean_correct_album = sanitize(current_track["album"]["name"])
+    
+    clean_guess_name = sanitize(guess.guess_name)
+    clean_guess_artist = sanitize(guess.guess_artist)
+    clean_guess_album = sanitize(guess.guess_album)
+    
     # Check Name
-    name_score = fuzz.token_set_ratio(guess.guess_name.lower(), current_track["name"].lower())
+    name_score = fuzz.token_set_ratio(clean_guess_name, clean_correct_name)
     if name_score >= THRESHOLD:
         points += 5
+    
+    # Helper to check if an artist exists in the user's input with typo tolerance
+    artist_guesses = [sanitize(g) for g in guess.guess_artist.split(',')]
+    def check_artist_match(target_name: str) -> bool:
+        clean_target = sanitize(target_name)
+        # 1. Global token match (for exact names hidden in a string without commas)
+        if fuzz.token_set_ratio(clean_guess_artist, clean_target) >= THRESHOLD:
+            return True
+        # 2. Direct match against comma-separated chunks (far better for typos like "beiber" vs "bieber")
+        for g in artist_guesses:
+            if g and fuzz.ratio(g, clean_target) >= 80:
+                return True
+        return False
+
+    # Check Artist
+    if len(current_track["artists"]) > 0:
+        primary_artist = current_track["artists"][0]
         
-    # Check Artist (check any artist)
-    artist_match = False
-    for artist in current_track["artists"]:
-        if fuzz.token_set_ratio(guess.guess_artist.lower(), artist["name"].lower()) >= THRESHOLD:
-            artist_match = True
-            break
-    if artist_match:
-        points += 2
+        # Award 2 points for the Primary Artist
+        if check_artist_match(primary_artist["name"]):
+            points += 2
+            
+        # Award 1 point for EVERY additional Feature Artist
+        features = current_track["artists"][1:]
+        for feature in features:
+            if check_artist_match(feature["name"]):
+                points += 1
         
     # Check Album
-    album_score = fuzz.token_set_ratio(guess.guess_album.lower(), current_track["album"]["name"].lower())
+    album_score = fuzz.token_set_ratio(clean_guess_album, clean_correct_album)
+    
+    # Special rule: Spotify duplicates song name as album name for singles
+    is_single = (clean_correct_name == clean_correct_album)
+    
     if album_score >= THRESHOLD:
+        points += 3
+    elif is_single and clean_guess_album in ["single", "no album", "none", "n a", "single release"]:
         points += 3
         
     game["score"] += points
