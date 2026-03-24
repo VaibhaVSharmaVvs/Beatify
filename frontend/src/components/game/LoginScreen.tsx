@@ -1,5 +1,6 @@
 import { Music } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Rulebook from "./Rulebook";
 
 interface LoginScreenProps {
   onConnect: () => void;
@@ -36,6 +37,11 @@ const LoginScreen = ({ onConnect }: LoginScreenProps) => {
         <p className="text-muted-foreground text-sm">
           Premium required for full playback.
         </p>
+      </div>
+      
+      {/* Rulebook Hover Widget */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <Rulebook />
       </div>
     </div>
   );

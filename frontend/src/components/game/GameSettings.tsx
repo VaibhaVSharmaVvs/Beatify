@@ -1,6 +1,9 @@
 import { Settings, Clock, Hash, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import Rulebook from "./Rulebook";
 
 interface Playlist {
   id: string;
@@ -120,8 +123,8 @@ const GameSettings = ({ score, playlists, onStartGame }: GameSettingsProps) => {
                 </div>
                 <input
                   type="range"
-                  min={3}
-                  max={30}
+                  min={10}
+                  max={60}
                   value={timerSeconds}
                   onChange={(e) => setTimerSeconds(Number(e.target.value))}
                   className="w-full accent-[hsl(141,73%,42%)] h-2 rounded-full bg-muted appearance-none cursor-pointer"
@@ -192,17 +195,15 @@ const GameSettings = ({ score, playlists, onStartGame }: GameSettingsProps) => {
 
         {/* Start Button */}
         <div className="slide-up" style={{ animationDelay: "0.3s" }}>
-          <Button
-            variant="spotify"
-            size="xl"
-            className="w-full"
-            disabled={!selectedPlaylist}
-            onClick={handleStart}
-          >
+          <Button variant="spotify" size="lg" className="w-full mt-8 fade-in" style={{ animationDelay: "0.5s" }} onClick={handleStart} disabled={!selectedPlaylist}>
             Start Game
-            <ChevronRight className="w-5 h-5" />
           </Button>
         </div>
+      </div>
+      
+      {/* Rulebook Hover Widget */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <Rulebook />
       </div>
     </div>
   );
