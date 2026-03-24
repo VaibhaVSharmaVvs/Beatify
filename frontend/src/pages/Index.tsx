@@ -76,13 +76,7 @@ const Index = () => {
         }));
         setPlaylists(mapped);
       }).catch(err => {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        setToken(null);
-        setPhase('login');
-        if (err.response && err.response.status !== 401) {
-          toast.error("Failed to fetch playlists. Please log in again.");
-        }
+        toast.error("Failed to fetch playlists. Are you offline?");
       });
     }
   }, [token]);
@@ -99,7 +93,7 @@ const Index = () => {
     (window as any).onSpotifyWebPlaybackSDKReady = () => {
       const player = new (window as any).Spotify.Player({
         name: 'Beatify | Guess The Song',
-        getOAuthToken: (cb: any) => { cb(token); },
+        getOAuthToken: (cb: any) => { cb(localStorage.getItem('access_token')); },
         volume: 0.5
       });
 

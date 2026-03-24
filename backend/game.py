@@ -42,7 +42,7 @@ def start_game(playlist_id: str, rounds: int = 10, authorization: str = Header(N
     tracks_url = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks?limit=1"
     response = requests.get(tracks_url, headers=headers)
     if response.status_code != 200:
-        raise HTTPException(status_code=400, detail="Failed to fetch playlist data")
+        raise HTTPException(status_code=response.status_code, detail="Failed to fetch playlist data")
     
     total_tracks = response.json().get("total", 0)
     if total_tracks < 1:
@@ -69,7 +69,10 @@ def start_game(playlist_id: str, rounds: int = 10, authorization: str = Header(N
     # Fetch ONLY the pages that contain our selected random tracks
     for offset, indices_in_page in pages_needed.items():
         url = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks?limit={page_size}&offset={offset}"
-        data = requests.get(url, headers=headers).json()
+        res = requests.get(url, headers=headers)
+        if res.status_code == 401:
+            raise HTTPException(status_code=401, detail="Token Expired")
+        data = res.json()
         items = data.get("items", [])
         
         for idx in indices_in_page:
