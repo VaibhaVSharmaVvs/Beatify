@@ -45,6 +45,7 @@ const Index = () => {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const playbackTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const playerRef = useRef<any>(null);
+  const pendingTimerRef = useRef<number | null>(null);
 
   // 1. Check for token on mount
   useEffect(() => {
@@ -113,6 +114,18 @@ const Index = () => {
       player.addListener('authentication_error', () => toast.error("Auth failed."));
       player.addListener('account_error', () => toast.error("Premium required."));
 
+      player.addListener('player_state_changed', (state: any) => {
+        if (!state) return;
+        
+        // When audio actually starts outputting to speakers
+        if (!state.paused && state.position > 0) {
+          if (pendingTimerRef.current !== null) {
+            startTimer(pendingTimerRef.current);
+            pendingTimerRef.current = null;
+          }
+        }
+      });
+
       player.connect();
       playerRef.current = player;
     };
@@ -137,7 +150,8 @@ const Index = () => {
       setPhase('playing');
       playUri(res.data.uri, gameSettings.difficulty);
       if (gameSettings.timerEnabled) {
-        startTimer(gameSettings.timerSeconds);
+        setTimeLeft(gameSettings.timerSeconds);
+        pendingTimerRef.current = gameSettings.timerSeconds;
       } else {
         setTimeLeft(999);
       }
@@ -200,7 +214,8 @@ const Index = () => {
         setPhase('playing');
         playUri(res.data.uri, settings.difficulty);
         if (settings.timerEnabled) {
-          startTimer(settings.timerSeconds);
+          setTimeLeft(settings.timerSeconds);
+          pendingTimerRef.current = settings.timerSeconds;
         }
       }
     }).catch(err => toast.error("Failed to start next round"));
