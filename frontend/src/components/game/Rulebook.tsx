@@ -53,6 +53,11 @@ const Rulebook = () => {
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   Listen to a short clip from your Spotify playlist and guess the <span className="text-foreground font-medium">song name</span>, <span className="text-foreground font-medium">artist</span>, and <span className="text-foreground font-medium">album</span>. Score as many points as you can across all rounds.
                 </p>
+                <div className="rounded-xl bg-primary/10 border border-primary/20 p-3 mt-3">
+                  <p className="text-xs text-primary/90">
+                    <span className="font-semibold">💿 Singles & No Albums:</span> If a song doesn't belong to a larger album, simply type <span className="font-bold">"single", "none", or the exact song name again</span> to natively earn all 3 album points!
+                  </p>
+                </div>
               </section>
 
               {/* Scoring */}

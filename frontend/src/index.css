@@ -69,6 +69,23 @@
     font-family: 'Space Grotesk', system-ui, sans-serif;
     @apply tracking-tight;
   }
+
+  /* Custom Webkit Scrollbars */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border) / 0.8);
+    border-radius: 4px;
+    transition: background 0.2s ease-in-out;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary));
+  }
 }
 
 @layer components {
