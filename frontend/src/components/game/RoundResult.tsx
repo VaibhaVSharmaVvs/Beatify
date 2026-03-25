@@ -6,12 +6,14 @@ interface RoundResultProps {
   songName: string;
   artists: string;
   albumName: string;
+  releaseYear: string;
   pointsEarned: number;
   isCorrect: boolean;
+  categories: { artist: boolean; album: boolean; year: boolean };
   onNextRound: () => void;
 }
 
-const RoundResult = ({ albumArt, songName, artists, albumName, pointsEarned, isCorrect, onNextRound }: RoundResultProps) => {
+const RoundResult = ({ albumArt, songName, artists, albumName, releaseYear, pointsEarned, isCorrect, categories, onNextRound }: RoundResultProps) => {
   return (
     <div className="min-h-screen px-4 py-8 flex items-center justify-center">
       <div className="max-w-sm w-full space-y-6 text-center">
@@ -47,8 +49,9 @@ const RoundResult = ({ albumArt, songName, artists, albumName, pointsEarned, isC
         {/* Song Info */}
         <div className="slide-up space-y-1" style={{ animationDelay: "0.2s" }}>
           <h3 className="text-xl font-bold">{songName}</h3>
-          <p className="text-muted-foreground">{artists}</p>
-          <p className="text-sm text-muted-foreground/70">{albumName}</p>
+          {categories.artist && <p className="text-muted-foreground">{artists}</p>}
+          {categories.album && <p className="text-sm text-muted-foreground/80">{albumName}</p>}
+          {categories.year && <p className="text-sm text-muted-foreground/60">Released: {releaseYear}</p>}
         </div>
 
         {/* Next Round */}

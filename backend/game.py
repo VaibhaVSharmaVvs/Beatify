@@ -31,7 +31,7 @@ def get_playlists(authorization: str = Header(None)):
     return response.json()
 
 @router.post("/start_game")
-def start_game(playlist_id: str, rounds: int = 10, authorization: str = Header(None)):
+def start_game(playlist_id: str, rounds: int = 10, artist: bool = True, album: bool = True, year: bool = False, authorization: str = Header(None)):
     if not authorization:
         raise HTTPException(status_code=401, detail="Missing token")
     token = authorization.split(" ")[1]
@@ -94,7 +94,13 @@ def start_game(playlist_id: str, rounds: int = 10, authorization: str = Header(N
         "current_round": 0,
         "score": 0,
         "history": [],
-        "total_rounds": len(selected_tracks)
+        "total_rounds": len(selected_tracks),
+        "settings": {
+            "artist": artist,
+            "album": album,
+            "year": year
+        },
+        "max_score_per_round": 5 + (2 if artist else 0) + (3 if album else 0) + (2 if year else 0)
     }
     
     return get_round_data(game_id)
@@ -149,6 +155,7 @@ def submit_guess(guess: GuessSubmission, authorization: str = Header(None)):
     clean_guess_name = sanitize(guess.guess_name)
     clean_guess_artist = sanitize(guess.guess_artist)
     clean_guess_album = sanitize(guess.guess_album)
+    clean_guess_year = sanitize(guess.guess_year)
     
     # Check Name
     name_score = fuzz.token_set_ratio(clean_guess_name, clean_correct_name)
@@ -169,7 +176,7 @@ def submit_guess(guess: GuessSubmission, authorization: str = Header(None)):
         return False
 
     # Check Artist
-    if len(current_track["artists"]) > 0:
+    if game["settings"]["artist"] and len(current_track["artists"]) > 0:
         primary_artist = current_track["artists"][0]
         
         # Award 2 points for the Primary Artist
@@ -183,15 +190,22 @@ def submit_guess(guess: GuessSubmission, authorization: str = Header(None)):
                 points += 1
         
     # Check Album
-    album_score = fuzz.token_set_ratio(clean_guess_album, clean_correct_album)
-    
-    # Special rule: Spotify duplicates song name as album name for singles
-    is_single = (clean_correct_name == clean_correct_album)
-    
-    if album_score >= THRESHOLD:
-        points += 3
-    elif is_single and clean_guess_album in ["single", "no album", "none", "n a", "single release"]:
-        points += 3
+    if game["settings"]["album"]:
+        album_score = fuzz.token_set_ratio(clean_guess_album, clean_correct_album)
+        
+        # Special rule: Spotify duplicates song name as album name for singles
+        is_single = (clean_correct_name == clean_correct_album)
+        
+        if album_score >= THRESHOLD:
+            points += 3
+        elif is_single and clean_guess_album in ["single", "no album", "none", "n a", "single release"]:
+            points += 3
+
+    # Check Year
+    if game["settings"]["year"]:
+        correct_year = str(current_track["album"].get("release_date", ""))[:4]
+        if clean_guess_year and clean_guess_year == sanitize(correct_year):
+            points += 2
         
     game["score"] += points
     
@@ -199,9 +213,11 @@ def submit_guess(guess: GuessSubmission, authorization: str = Header(None)):
         "correct_name": current_track["name"],
         "correct_artist": ", ".join([a["name"] for a in current_track["artists"]]),
         "correct_album": current_track["album"]["name"],
+        "correct_year": current_track["album"].get("release_date", "")[:4],
         "image_url": current_track["album"]["images"][0]["url"] if current_track["album"]["images"] else None,
         "points_earned": points,
-        "total_score": game["score"]
+        "total_score": game["score"],
+        "max_score_per_round": game["max_score_per_round"]
     }
     
     game["history"].append(result)

@@ -8,20 +8,23 @@ interface GamePlayProps {
   totalRounds: number;
   timeLeft: number;
   timerEnabled: boolean;
-  onSubmitGuess: (guess: { song: string; artist: string; album: string }) => void;
+  categories: { artist: boolean; album: boolean; year: boolean };
+  onSubmitGuess: (guess: { song: string; artist: string; album: string; year: string }) => void;
 }
 
-const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, onSubmitGuess }: GamePlayProps) => {
+const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, categories, onSubmitGuess }: GamePlayProps) => {
   const [song, setSong] = useState("");
   const [artist, setArtist] = useState("");
   const [album, setAlbum] = useState("");
+  const [year, setYear] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmitGuess({ song, artist, album });
+    onSubmitGuess({ song, artist, album, year });
     setSong("");
     setArtist("");
     setAlbum("");
+    setYear("");
   };
 
   const timerPercentage = timerEnabled ? (timeLeft / 30) * 100 : 100;
@@ -77,27 +80,45 @@ const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, onSubmitG
                 autoFocus
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs text-muted-foreground uppercase tracking-wider mb-1.5 block">Artist</label>
-                <input
-                  type="text"
-                  value={artist}
-                  onChange={(e) => setArtist(e.target.value)}
-                  placeholder="Who sings it?"
-                  className="game-input"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-muted-foreground uppercase tracking-wider mb-1.5 block">Album</label>
-                <input
-                  type="text"
-                  value={album}
-                  onChange={(e) => setAlbum(e.target.value)}
-                  placeholder="Which album?"
-                  className="game-input"
-                />
-              </div>
+            <div className={`grid gap-3 ${categories.artist || categories.album || categories.year ? 'grid-cols-2' : ''}`}>
+              {categories.artist && (
+                <div>
+                  <label className="text-xs text-muted-foreground uppercase tracking-wider mb-1.5 block">Artist</label>
+                  <input
+                    type="text"
+                    value={artist}
+                    onChange={(e) => setArtist(e.target.value)}
+                    placeholder="Who sings it?"
+                    className="game-input"
+                  />
+                </div>
+              )}
+              {categories.album && (
+                <div>
+                  <label className="text-xs text-muted-foreground uppercase tracking-wider mb-1.5 block">Album</label>
+                  <input
+                    type="text"
+                    value={album}
+                    onChange={(e) => setAlbum(e.target.value)}
+                    placeholder="Which album?"
+                    className="game-input"
+                  />
+                </div>
+              )}
+              {categories.year && (
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="text-xs text-muted-foreground uppercase tracking-wider mb-1.5 block">Release Year</label>
+                  <input
+                    type="number"
+                    min={1900}
+                    max={new Date().getFullYear()}
+                    value={year}
+                    onChange={(e) => setYear(e.target.value)}
+                    placeholder="YYYY"
+                    className="game-input"
+                  />
+                </div>
+              )}
             </div>
           </div>
 

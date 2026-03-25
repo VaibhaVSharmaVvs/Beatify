@@ -60,11 +60,14 @@ export const getPlaylists = (token) => {
     return axios.get(`${BASE_URL}/playlists`, getAuthHeaders());
 };
 
-export const startGame = (playlistId, token, rounds) => {
+export const startGame = (playlistId, token, rounds, categories) => {
     return axios.post(`${BASE_URL}/start_game`, null, {
         params: { 
             playlist_id: playlistId,
-            rounds: rounds
+            rounds: rounds,
+            artist: categories.artist,
+            album: categories.album,
+            year: categories.year
         },
         ...getAuthHeaders()
     });
@@ -74,7 +77,8 @@ export const submitGuess = (guess, token) => {
     return axios.post(`${BASE_URL}/submit_guess`, {
         guess_name: guess.guess_name || '',
         guess_artist: guess.guess_artist || '',
-        guess_album: guess.guess_album || ''
+        guess_album: guess.guess_album || '',
+        guess_year: guess.guess_year || ''
     }, getAuthHeaders());
 };
 

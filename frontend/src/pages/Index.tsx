@@ -35,7 +35,12 @@ const Index = () => {
     difficulty: 'easy',
     timerEnabled: true,
     timerSeconds: 10,
-    rounds: 10
+    rounds: 10,
+    categories: {
+      artist: true,
+      album: true,
+      year: false
+    }
   });
 
   // Spotify SDK State
@@ -144,7 +149,7 @@ const Index = () => {
     setSettings(gameSettings);
     setIsStartingGame(true);
     
-    startGame(gameSettings.playlistId, token, gameSettings.rounds).then(res => {
+    startGame(gameSettings.playlistId, token, gameSettings.rounds, gameSettings.categories).then(res => {
       setIsStartingGame(false);
       setCurrentRoundData(res.data);
       setPhase('playing');
@@ -184,18 +189,19 @@ const Index = () => {
   // Timer runout
   useEffect(() => {
     if (phase === 'playing' && settings.timerEnabled && timeLeft === 0) {
-      submitGuessAndShowResults({ song: '', artist: '', album: '' });
+      submitGuessAndShowResults({ song: '', artist: '', album: '', year: '' });
     }
   }, [timeLeft, phase, settings.timerEnabled]);
 
-  const submitGuessAndShowResults = (guess: {song: string, artist: string, album: string}) => {
+  const submitGuessAndShowResults = (guess: {song: string, artist: string, album: string, year: string}) => {
     if (timerRef.current) clearInterval(timerRef.current);
     if (playerRef.current) playerRef.current.pause();
     
     submitGuess({
       guess_name: guess.song,
       guess_artist: guess.artist,
-      guess_album: guess.album
+      guess_album: guess.album,
+      guess_year: guess.year
     }, token).then(res => {
       setRoundResult(res.data);
       setScore(res.data.total_score);
@@ -242,6 +248,7 @@ const Index = () => {
           totalRounds={settings.rounds}
           timeLeft={timeLeft}
           timerEnabled={settings.timerEnabled}
+          categories={settings.categories}
           onSubmitGuess={submitGuessAndShowResults}
         />
       )}
@@ -251,8 +258,10 @@ const Index = () => {
           songName={roundResult.correct_name}
           artists={roundResult.correct_artist}
           albumName={roundResult.correct_album}
+          releaseYear={roundResult.correct_year}
           pointsEarned={roundResult.points_earned}
           isCorrect={roundResult.points_earned > 0}
+          categories={settings.categories}
           onNextRound={handleNextRound}
         />
       )}

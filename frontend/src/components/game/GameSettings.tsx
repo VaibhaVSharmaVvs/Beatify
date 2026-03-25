@@ -21,16 +21,21 @@ interface GameSettingsProps {
     timerSeconds: number;
     rounds: number;
     playlistId: string;
+    categories: {
+      artist: boolean;
+      album: boolean;
+      year: boolean;
+    };
   }) => void;
   isLoadingPlaylists?: boolean;
   isStartingGame?: boolean;
 }
 
 const difficulties = [
-  { id: "easy", label: "Easy", seconds: "10s", color: "text-primary" },
-  { id: "medium", label: "Medium", seconds: "5s", color: "text-[hsl(var(--game-warning))]" },
-  { id: "hard", label: "Hard", seconds: "3s", color: "text-[hsl(var(--game-error))]" },
-  { id: "impossible", label: "Impossible", seconds: "1s", color: "text-[hsl(var(--game-error))]" },
+  { id: "easy", label: "Listener", seconds: "10s", color: "text-primary" },
+  { id: "medium", label: "Performer", seconds: "5s", color: "text-[hsl(var(--game-warning))]" },
+  { id: "hard", label: "Producer", seconds: "3s", color: "text-[hsl(var(--game-error))]" },
+  { id: "impossible", label: "Virtuoso", seconds: "1s", color: "text-[hsl(var(--game-error))]" },
 ];
 
 const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isStartingGame }: GameSettingsProps) => {
@@ -38,6 +43,7 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
   const [timerEnabled, setTimerEnabled] = useState(true);
   const [timerSeconds, setTimerSeconds] = useState(10);
   const [rounds, setRounds] = useState(10);
+  const [categories, setCategories] = useState({ artist: true, album: true, year: false });
   const [selectedPlaylist, setSelectedPlaylist] = useState<string | null>(null);
 
   const handleStart = () => {
@@ -48,6 +54,7 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
       timerSeconds,
       rounds,
       playlistId: selectedPlaylist,
+      categories,
     });
   };
 
@@ -156,6 +163,34 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
               onChange={(e) => setRounds(Number(e.target.value))}
               className="w-full accent-[hsl(141,73%,42%)] h-2 rounded-full bg-muted appearance-none cursor-pointer"
             />
+          </div>
+
+          {/* Categories */}
+          <div className="space-y-3 pt-2">
+            <div className="flex items-center gap-2">
+              <Settings className="w-4 h-4 text-muted-foreground" />
+              <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                Categories to Guess
+              </label>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <label className="flex items-center gap-2 cursor-pointer opacity-70">
+                <input type="checkbox" checked readOnly className="accent-primary w-4 h-4 cursor-not-allowed" />
+                <span className="text-sm">Song Name (5 pts)</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked={categories.artist} onChange={e => setCategories({...categories, artist: e.target.checked})} className="accent-primary w-4 h-4 cursor-pointer text-primary bg-muted rounded border-border" />
+                <span className="text-sm">Artist (2 pts)</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked={categories.album} onChange={e => setCategories({...categories, album: e.target.checked})} className="accent-primary w-4 h-4 cursor-pointer rounded" />
+                <span className="text-sm">Album (3 pts)</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked={categories.year} onChange={e => setCategories({...categories, year: e.target.checked})} className="accent-primary w-4 h-4 cursor-pointer rounded" />
+                <span className="text-sm">Release Year (2 pts)</span>
+              </label>
+            </div>
           </div>
         </div>
 

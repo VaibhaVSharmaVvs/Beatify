@@ -66,11 +66,12 @@ const Rulebook = () => {
                   <Trophy className="w-4 h-4" />
                   <h3 className="text-sm font-semibold uppercase tracking-wider">Scoring</h3>
                 </div>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   {[
                     { label: "Song Name", pts: "5 pts" },
                     { label: "Album (or 'Single')", pts: "3 pts" },
                     { label: "Primary Artist", pts: "2 pts" },
+                    { label: "Release Year", pts: "2 pts" },
                   ].map((item) => (
                     <div
                       key={item.label}
@@ -99,10 +100,10 @@ const Rulebook = () => {
                 </p>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   {[
-                    { level: "Easy", time: "10 seconds" },
-                    { level: "Medium", time: "5 seconds" },
-                    { level: "Hard", time: "3 seconds" },
-                    { level: "Impossible", time: "1 second" },
+                    { level: "Listener", time: "10 seconds" },
+                    { level: "Performer", time: "5 seconds" },
+                    { level: "Producer", time: "3 seconds" },
+                    { level: "Virtuoso", time: "1 second" },
                   ].map((d) => (
                     <div key={d.level} className="flex justify-between rounded-lg bg-muted/40 px-3 py-2">
                       <span className="text-foreground font-medium">{d.level}</span>
@@ -122,6 +123,10 @@ const Rulebook = () => {
                   <li className="flex gap-2">
                     <span className="text-primary">•</span>
                     <span><span className="text-foreground font-medium">Rounds</span> — choose 1 to 20 rounds per game.</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-primary">•</span>
+                    <span><span className="text-foreground font-medium">Categories</span> — toggle Artist, Album, and Release Year fields.</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="text-primary">•</span>
