@@ -21,3 +21,4 @@ class GuessSubmission(BaseModel):
     guess_name: str
     guess_artist: str
     guess_album: str
+    guess_year: str = ""

@@ -30,7 +30,7 @@ const GameOver = ({ totalScore, totalRounds, history, onPlayAgain }: GameOverPro
           <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Total Score</p>
           <div className="flex justify-center items-end gap-1">
             <p className="score-display text-5xl font-bold text-primary glow-text">{totalScore}</p>
-            <p className="text-2xl text-muted-foreground font-medium mb-1">/{totalRounds * 10}</p>
+            <p className="text-2xl text-muted-foreground font-medium mb-1">/{ (history[0]?.max_score_per_round * totalRounds) || (totalRounds * 10) }</p>
           </div>
           <p className="text-sm text-muted-foreground mt-2">across {totalRounds} rounds</p>
         </div>
