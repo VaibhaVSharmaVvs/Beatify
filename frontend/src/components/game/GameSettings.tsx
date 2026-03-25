@@ -127,6 +127,7 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
                   type="range"
                   min={10}
                   max={60}
+                  step={10}
                   value={timerSeconds}
                   onChange={(e) => setTimerSeconds(Number(e.target.value))}
                   className="w-full accent-[hsl(141,73%,42%)] h-2 rounded-full bg-muted appearance-none cursor-pointer"
