@@ -1,4 +1,4 @@
-import { Settings, Clock, Hash, ChevronRight } from "lucide-react";
+import { Settings, Clock, Hash, ChevronRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,6 +22,8 @@ interface GameSettingsProps {
     rounds: number;
     playlistId: string;
   }) => void;
+  isLoadingPlaylists?: boolean;
+  isStartingGame?: boolean;
 }
 
 const difficulties = [
@@ -31,7 +33,7 @@ const difficulties = [
   { id: "impossible", label: "Impossible", seconds: "1s", color: "text-[hsl(var(--game-error))]" },
 ];
 
-const GameSettings = ({ score, playlists, onStartGame }: GameSettingsProps) => {
+const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isStartingGame }: GameSettingsProps) => {
   const [difficulty, setDifficulty] = useState("easy");
   const [timerEnabled, setTimerEnabled] = useState(true);
   const [timerSeconds, setTimerSeconds] = useState(10);
@@ -159,44 +161,64 @@ const GameSettings = ({ score, playlists, onStartGame }: GameSettingsProps) => {
         {/* Playlist Selection */}
         <div className="space-y-4 slide-up" style={{ animationDelay: "0.2s" }}>
           <h2 className="text-xl font-semibold">Select Playlist</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {playlists.map((playlist) => (
-              <button
-                key={playlist.id}
-                onClick={() => setSelectedPlaylist(playlist.id)}
-                className={`group relative rounded-2xl overflow-hidden border-2 transition-all duration-300 text-left ${
-                  selectedPlaylist === playlist.id
-                    ? "border-primary shadow-lg shadow-primary/20"
-                    : "border-transparent hover:border-border"
-                }`}
-              >
-                <div className="aspect-square overflow-hidden">
-                  <img
-                    src={playlist.image}
-                    alt={playlist.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                </div>
-                <div className="p-3 bg-card">
-                  <p className="font-medium text-sm truncate">{playlist.name}</p>
-                  <p className="text-xs text-muted-foreground">{playlist.tracks} Tracks</p>
-                </div>
-                {selectedPlaylist === playlist.id && (
-                  <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                    <svg className="w-3.5 h-3.5 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </svg>
+          
+          {isLoadingPlaylists ? (
+            <div className="flex flex-col items-center justify-center py-12 space-y-4 rounded-2xl border-2 border-dashed border-primary/20 bg-card/30">
+              <Loader2 className="w-10 h-10 text-primary animate-spin" />
+              <p className="text-sm font-medium text-muted-foreground animate-pulse">Syncing your Spotify Library...</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {playlists.map((playlist) => (
+                <button
+                  key={playlist.id}
+                  onClick={() => setSelectedPlaylist(playlist.id)}
+                  className={`group relative rounded-2xl overflow-hidden border-2 transition-all duration-300 text-left ${
+                    selectedPlaylist === playlist.id
+                      ? "border-primary shadow-lg shadow-primary/20"
+                      : "border-transparent hover:border-border"
+                  }`}
+                >
+                  <div className="aspect-square overflow-hidden">
+                    <img
+                      src={playlist.image}
+                      alt={playlist.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
                   </div>
-                )}
-              </button>
-            ))}
-          </div>
+                  <div className="p-3 bg-card">
+                    <p className="font-medium text-sm truncate">{playlist.name}</p>
+                    <p className="text-xs text-muted-foreground">{playlist.tracks} Tracks</p>
+                  </div>
+                  {selectedPlaylist === playlist.id && (
+                    <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                      <svg className="w-3.5 h-3.5 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Start Button */}
         <div className="slide-up" style={{ animationDelay: "0.3s" }}>
-          <Button variant="spotify" size="lg" className="w-full mt-8 fade-in" style={{ animationDelay: "0.5s" }} onClick={handleStart} disabled={!selectedPlaylist}>
-            Start Game
+          <Button 
+            variant="spotify" 
+            size="lg" 
+            className="w-full mt-8 fade-in" 
+            style={{ animationDelay: "0.5s" }} 
+            onClick={handleStart} 
+            disabled={!selectedPlaylist || isStartingGame}
+          >
+            {isStartingGame ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Initializing Tracks...
+              </span>
+            ) : "Start Game"}
           </Button>
         </div>
       </div>

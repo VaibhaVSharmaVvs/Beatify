@@ -20,6 +20,8 @@ const Index = () => {
   const [phase, setPhase] = useState<GamePhase>("login");
   const [token, setToken] = useState<string | null>(null);
   const [playlists, setPlaylists] = useState<any[]>([]);
+  const [isLoadingPlaylists, setIsLoadingPlaylists] = useState(false);
+  const [isStartingGame, setIsStartingGame] = useState(false);
   
   // Game State
   const [score, setScore] = useState(0);
@@ -66,6 +68,7 @@ const Index = () => {
   // 2. Fetch playlists when token is ready
   useEffect(() => {
     if (token) {
+      setIsLoadingPlaylists(true);
       getPlaylists(token).then(res => {
         // Map to Lovable's expected props
         const mapped = res.data.items.map((p: any) => ({
@@ -75,7 +78,9 @@ const Index = () => {
           tracks: p.tracks?.total || 0
         }));
         setPlaylists(mapped);
+        setIsLoadingPlaylists(false);
       }).catch(err => {
+        setIsLoadingPlaylists(false);
         toast.error("Failed to fetch playlists. Are you offline?");
       });
     }
@@ -124,7 +129,10 @@ const Index = () => {
       return;
     }
     setSettings(gameSettings);
+    setIsStartingGame(true);
+    
     startGame(gameSettings.playlistId, token, gameSettings.rounds).then(res => {
+      setIsStartingGame(false);
       setCurrentRoundData(res.data);
       setPhase('playing');
       playUri(res.data.uri, gameSettings.difficulty);
@@ -133,7 +141,10 @@ const Index = () => {
       } else {
         setTimeLeft(999);
       }
-    }).catch(err => toast.error("Failed to start game"));
+    }).catch(err => {
+      setIsStartingGame(false);
+      toast.error("Failed to start game");
+    });
   };
 
   const playUri = (uri: string, diffLevel: string) => {
@@ -205,6 +216,8 @@ const Index = () => {
           score={score}
           playlists={playlists}
           onStartGame={handleStartGame}
+          isLoadingPlaylists={isLoadingPlaylists}
+          isStartingGame={isStartingGame}
         />
       )}
       {phase === "playing" && (
