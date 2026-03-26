@@ -47,6 +47,7 @@ const Index = () => {
   // Spotify SDK State
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const playbackTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -123,6 +124,8 @@ const Index = () => {
       player.addListener('player_state_changed', (state: any) => {
         if (!state) return;
         
+        setIsAudioPlaying(!state.paused && state.position > 0);
+
         // When audio actually starts outputting to speakers
         if (!state.paused && state.position > 0) {
           if (pendingTimerRef.current !== null) {
@@ -252,6 +255,7 @@ const Index = () => {
           categories={settings.categories}
           hintMode={settings.hintMode}
           albumArt={currentRoundData?.image_url}
+          isPlaying={isAudioPlaying}
           onSubmitGuess={submitGuessAndShowResults}
         />
       )}
