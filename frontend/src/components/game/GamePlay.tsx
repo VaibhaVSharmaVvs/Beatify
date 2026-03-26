@@ -77,7 +77,7 @@ const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, categorie
         {/* Visual Hint */}
         {hintMode !== 'none' && albumArt && (
           <div className="flex justify-center my-6 slide-up" style={{ animationDelay: "0.1s" }}>
-            <div className="w-48 h-48 rounded-xl overflow-hidden shadow-xl bg-muted/20 relative border border-border/50">
+            <div className="w-48 h-48 rounded-xl overflow-hidden shadow-xl bg-muted/20 relative border border-border/50 pulse-glow">
               <div className="absolute inset-0 flex items-center justify-center opacity-30 text-muted-foreground"><span className="animate-pulse flex items-center gap-2"><div className="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin"/> Loading Component</span></div>
               
               <div className={`absolute inset-0 z-10 transition-all duration-700 ease-in-out ${
@@ -99,6 +99,18 @@ const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, categorie
                   </button>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Audio Equalizer (If Hints Disabled) */}
+        {hintMode === 'none' && (
+          <div className="flex justify-center my-8 slide-up" style={{ animationDelay: "0.1s" }}>
+            <div className="flex items-end justify-center gap-1.5 h-16 w-16 opacity-70">
+              <div className="w-2 bg-primary rounded-full h-full eq-bar" />
+              <div className="w-2 bg-primary rounded-full h-full eq-bar" />
+              <div className="w-2 bg-primary rounded-full h-full eq-bar" />
+              <div className="w-2 bg-primary rounded-full h-full eq-bar" />
             </div>
           </div>
         )}
