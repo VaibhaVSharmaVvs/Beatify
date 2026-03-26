@@ -130,6 +130,10 @@ const Rulebook = () => {
                   </li>
                   <li className="flex gap-2">
                     <span className="text-primary">•</span>
+                    <span><span className="text-foreground font-medium">Visual Hint</span> — enable to progressively reveal the album art over a 10-second window.</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-primary">•</span>
                     <span><span className="text-foreground font-medium">Answer Timer</span> — toggle on/off and set between 10–60 seconds.</span>
                   </li>
                   <li className="flex gap-2">

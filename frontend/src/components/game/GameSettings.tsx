@@ -1,4 +1,4 @@
-import { Settings, Clock, Hash, ChevronRight, Loader2 } from "lucide-react";
+import { Settings, Clock, Hash, ChevronRight, Loader2, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,6 +26,7 @@ interface GameSettingsProps {
       album: boolean;
       year: boolean;
     };
+    hintsEnabled: boolean;
   }) => void;
   isLoadingPlaylists?: boolean;
   isStartingGame?: boolean;
@@ -44,6 +45,7 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
   const [timerSeconds, setTimerSeconds] = useState(10);
   const [rounds, setRounds] = useState(10);
   const [categories, setCategories] = useState({ artist: true, album: true, year: false });
+  const [hintsEnabled, setHintsEnabled] = useState(false);
   const [selectedPlaylist, setSelectedPlaylist] = useState<string | null>(null);
 
   const handleStart = () => {
@@ -55,6 +57,7 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
       rounds,
       playlistId: selectedPlaylist,
       categories,
+      hintsEnabled,
     });
   };
 
@@ -163,6 +166,33 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
               onChange={(e) => setRounds(Number(e.target.value))}
               className="w-full accent-[hsl(141,73%,42%)] h-2 rounded-full bg-muted appearance-none cursor-pointer"
             />
+          </div>
+
+          {/* Hints */}
+          <div className="space-y-3 mb-6 pt-2">
+            <div className="flex items-center gap-2">
+              <ImageIcon className="w-4 h-4 text-muted-foreground" />
+              <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                Visual Hint
+              </label>
+            </div>
+            <div className="flex items-center gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <div
+                  className={`w-10 h-6 rounded-full transition-colors duration-200 relative cursor-pointer ${
+                    hintsEnabled ? "bg-primary" : "bg-muted"
+                  }`}
+                  onClick={() => setHintsEnabled(!hintsEnabled)}
+                >
+                  <div
+                    className={`absolute top-1 w-4 h-4 rounded-full bg-background transition-transform duration-200 ${
+                      hintsEnabled ? "translate-x-5" : "translate-x-1"
+                    }`}
+                  />
+                </div>
+                <span className="text-sm">{hintsEnabled ? "Progressive Album Art Reveal" : "Disabled (Hardcore)"}</span>
+              </label>
+            </div>
           </div>
 
           {/* Categories */}

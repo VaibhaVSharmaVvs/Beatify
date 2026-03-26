@@ -9,10 +9,12 @@ interface GamePlayProps {
   timeLeft: number;
   timerEnabled: boolean;
   categories: { artist: boolean; album: boolean; year: boolean };
+  hintsEnabled: boolean;
+  albumArt?: string;
   onSubmitGuess: (guess: { song: string; artist: string; album: string; year: string }) => void;
 }
 
-const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, categories, onSubmitGuess }: GamePlayProps) => {
+const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, categories, hintsEnabled, albumArt, onSubmitGuess }: GamePlayProps) => {
   const [song, setSong] = useState("");
   const [artist, setArtist] = useState("");
   const [album, setAlbum] = useState("");
@@ -65,6 +67,18 @@ const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, categorie
             </div>
           )}
         </div>
+
+        {/* Visual Hint */}
+        {hintsEnabled && albumArt && (
+          <div className="flex justify-center my-6 slide-up" style={{ animationDelay: "0.1s" }}>
+            <div className="w-48 h-48 rounded-xl overflow-hidden shadow-xl bg-muted/20 relative border border-border/50">
+              <div className="absolute inset-0 flex items-center justify-center opacity-30 text-muted-foreground"><span className="animate-pulse flex items-center gap-2"><div className="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin"/> Loading Component</span></div>
+              <div className="absolute inset-0 z-10 hint-blur">
+                <img key={round} src={albumArt} className="w-full h-full object-cover" alt="Visual Hint" />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Input Form */}
         <form onSubmit={handleSubmit} className="space-y-4 slide-up" style={{ animationDelay: "0.15s" }}>
