@@ -40,7 +40,8 @@ const Index = () => {
       artist: true,
       album: true,
       year: false
-    }
+    },
+    hintMode: "none"
   });
 
   // Spotify SDK State
@@ -249,6 +250,8 @@ const Index = () => {
           timeLeft={timeLeft}
           timerEnabled={settings.timerEnabled}
           categories={settings.categories}
+          hintMode={settings.hintMode}
+          albumArt={currentRoundData?.image_url}
           onSubmitGuess={submitGuessAndShowResults}
         />
       )}

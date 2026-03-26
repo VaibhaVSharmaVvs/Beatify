@@ -120,6 +120,7 @@ def get_round_data(game_id):
         "round": game["current_round"] + 1,
         "preview_url": track_data.get("preview_url"), # Keep for fallback if needed
         "uri": track_data["uri"],
+        "image_url": track_data["album"]["images"][0]["url"] if track_data.get("album") and track_data["album"].get("images") else None,
         "game_over": False
     }
 

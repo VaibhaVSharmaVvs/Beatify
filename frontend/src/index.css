@@ -187,3 +187,17 @@
 .pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
 }
+
+@keyframes unblur-hint {
+  0% { filter: blur(20px) brightness(0.6); transform: scale(1.05); }
+  100% { filter: blur(0px) brightness(1); transform: scale(1); }
+}
+
+.hint-blur {
+  animation: unblur-hint 10s ease-out forwards;
+}
+
+.manual-blur {
+  filter: blur(20px) brightness(0.6); 
+  transform: scale(1.05);
+}

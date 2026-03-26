@@ -1,4 +1,4 @@
-import { Settings, Clock, Hash, ChevronRight, Loader2 } from "lucide-react";
+import { Settings, Clock, Hash, ChevronRight, Loader2, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,6 +26,7 @@ interface GameSettingsProps {
       album: boolean;
       year: boolean;
     };
+    hintMode: string;
   }) => void;
   isLoadingPlaylists?: boolean;
   isStartingGame?: boolean;
@@ -44,6 +45,7 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
   const [timerSeconds, setTimerSeconds] = useState(10);
   const [rounds, setRounds] = useState(10);
   const [categories, setCategories] = useState({ artist: true, album: true, year: false });
+  const [hintMode, setHintMode] = useState("none");
   const [selectedPlaylist, setSelectedPlaylist] = useState<string | null>(null);
 
   const handleStart = () => {
@@ -55,6 +57,7 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
       rounds,
       playlistId: selectedPlaylist,
       categories,
+      hintMode,
     });
   };
 
@@ -163,6 +166,32 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
               onChange={(e) => setRounds(Number(e.target.value))}
               className="w-full accent-[hsl(141,73%,42%)] h-2 rounded-full bg-muted appearance-none cursor-pointer"
             />
+          </div>
+
+          {/* Hints */}
+          <div className="space-y-3 mb-6 pt-2">
+            <div className="flex items-center gap-2">
+              <ImageIcon className="w-4 h-4 text-muted-foreground" />
+              <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                Visual Hint
+              </label>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              {[
+                { id: "none", label: "Disabled" },
+                { id: "progressive", label: "Progressive (10s)" },
+                { id: "manual", label: "Manual Reveal 👁️" },
+              ].map((h) => (
+                <Button
+                  key={h.id}
+                  variant={hintMode === h.id ? "gameActive" : "game"}
+                  size="sm"
+                  onClick={() => setHintMode(h.id)}
+                >
+                  {h.label}
+                </Button>
+              ))}
+            </div>
           </div>
 
           {/* Categories */}
