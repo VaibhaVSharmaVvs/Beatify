@@ -26,7 +26,7 @@ interface GameSettingsProps {
       album: boolean;
       year: boolean;
     };
-    hintsEnabled: boolean;
+    hintMode: string;
   }) => void;
   isLoadingPlaylists?: boolean;
   isStartingGame?: boolean;
@@ -45,7 +45,7 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
   const [timerSeconds, setTimerSeconds] = useState(10);
   const [rounds, setRounds] = useState(10);
   const [categories, setCategories] = useState({ artist: true, album: true, year: false });
-  const [hintsEnabled, setHintsEnabled] = useState(false);
+  const [hintMode, setHintMode] = useState("none");
   const [selectedPlaylist, setSelectedPlaylist] = useState<string | null>(null);
 
   const handleStart = () => {
@@ -57,7 +57,7 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
       rounds,
       playlistId: selectedPlaylist,
       categories,
-      hintsEnabled,
+      hintMode,
     });
   };
 
@@ -176,22 +176,21 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
                 Visual Hint
               </label>
             </div>
-            <div className="flex items-center gap-4">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <div
-                  className={`w-10 h-6 rounded-full transition-colors duration-200 relative cursor-pointer ${
-                    hintsEnabled ? "bg-primary" : "bg-muted"
-                  }`}
-                  onClick={() => setHintsEnabled(!hintsEnabled)}
+            <div className="flex gap-2 flex-wrap">
+              {[
+                { id: "none", label: "Disabled" },
+                { id: "progressive", label: "Progressive (10s)" },
+                { id: "manual", label: "Manual Reveal 👁️" },
+              ].map((h) => (
+                <Button
+                  key={h.id}
+                  variant={hintMode === h.id ? "gameActive" : "game"}
+                  size="sm"
+                  onClick={() => setHintMode(h.id)}
                 >
-                  <div
-                    className={`absolute top-1 w-4 h-4 rounded-full bg-background transition-transform duration-200 ${
-                      hintsEnabled ? "translate-x-5" : "translate-x-1"
-                    }`}
-                  />
-                </div>
-                <span className="text-sm">{hintsEnabled ? "Progressive Album Art Reveal" : "Disabled (Hardcore)"}</span>
-              </label>
+                  {h.label}
+                </Button>
+              ))}
             </div>
           </div>
 
