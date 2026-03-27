@@ -269,6 +269,7 @@ const Index = () => {
           pointsEarned={roundResult.points_earned}
           maxScore={roundResult.max_score_per_round}
           isCorrect={roundResult.points_earned > 0}
+          isLastRound={currentRoundData?.round >= settings.rounds}
           categories={settings.categories}
           onNextRound={handleNextRound}
         />
@@ -279,6 +280,11 @@ const Index = () => {
           totalRounds={settings.rounds}
           history={history}
           onPlayAgain={() => {
+            setScore(0);
+            setHistory([]);
+            handleStartGame(settings);
+          }}
+          onChangeSettings={() => {
             setScore(0);
             setHistory([]);
             setPhase("settings");

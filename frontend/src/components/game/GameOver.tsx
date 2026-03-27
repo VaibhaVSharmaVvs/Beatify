@@ -6,9 +6,10 @@ interface GameOverProps {
   totalRounds: number;
   history: any[];
   onPlayAgain: () => void;
+  onChangeSettings: () => void;
 }
 
-const GameOver = ({ totalScore, totalRounds, history, onPlayAgain }: GameOverProps) => {
+const GameOver = ({ totalScore, totalRounds, history, onPlayAgain, onChangeSettings }: GameOverProps) => {
   return (
     <div className="min-h-screen px-4 py-8 flex items-center justify-center">
       <div className="max-w-xl w-full space-y-8 text-center">
@@ -54,11 +55,14 @@ const GameOver = ({ totalScore, totalRounds, history, onPlayAgain }: GameOverPro
           </div>
         </div>
 
-        {/* Play Again */}
-        <div className="slide-up max-w-sm mx-auto" style={{ animationDelay: "0.3s" }}>
-          <Button variant="spotify" size="xl" className="w-full" onClick={onPlayAgain}>
-            <RotateCcw className="w-5 h-5" />
-            Play Again
+        {/* Actions */}
+        <div className="slide-up max-w-sm mx-auto space-y-3 pt-6" style={{ animationDelay: "0.3s" }}>
+          <Button variant="spotify" size="lg" className="w-full" onClick={onPlayAgain}>
+            <RotateCcw className="w-5 h-5 mr-2" />
+            Play Again (Same Settings)
+          </Button>
+          <Button variant="outline" size="lg" className="w-full bg-transparent border-card hover:bg-card/50" onClick={onChangeSettings}>
+            Change Settings / Playlist
           </Button>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { Settings, Clock, Hash, ChevronRight, Loader2, Image as ImageIcon } from "lucide-react";
+import { Settings, Clock, Hash, ChevronRight, Loader2, Image as ImageIcon, Music } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -67,9 +67,13 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
         {/* Header */}
         <div className="flex items-center justify-between fade-in">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Beatify | Guess The Song</h1>
-            <div className="flex items-center gap-3 mt-2">
-              <span className="score-display text-muted-foreground">Score: {score}</span>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center border border-primary/30">
+                <Music className="w-6 h-6 text-primary" />
+              </div>
+              <h1 className="text-3xl font-bold tracking-tight">Beatify <span className="text-muted-foreground font-normal">| Guess The Song</span></h1>
+            </div>
+            <div className="flex items-center gap-3 mt-3">
               <span className="game-badge">● Online</span>
             </div>
           </div>
@@ -84,8 +88,8 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
 
           {/* Difficulty */}
           <div className="space-y-3 mb-6">
-            <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-              Difficulty
+            <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+              🕹️ Difficulty
             </label>
             <div className="flex gap-2 flex-wrap">
               {difficulties.map((d) => (
@@ -104,11 +108,16 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
 
           {/* Timer */}
           <div className="space-y-3 mb-6">
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-muted-foreground" />
-              <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-                Timer
-              </label>
+            <div className="relative group w-max">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-muted-foreground" />
+                <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider cursor-help border-b border-dotted border-muted-foreground/50 pb-0.5">
+                  Timer
+                </label>
+              </div>
+              <div className="absolute left-0 top-full mt-2 px-3 py-1.5 bg-black/90 backdrop-blur-sm text-xs font-semibold text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
+                Controls the duration of each round
+              </div>
             </div>
             <div className="flex items-center gap-4">
               <label className="flex items-center gap-2 cursor-pointer">
@@ -148,11 +157,16 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
 
           {/* Rounds */}
           <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Hash className="w-4 h-4 text-muted-foreground" />
-              <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-                Rounds
-              </label>
+            <div className="relative group w-max">
+              <div className="flex items-center gap-2">
+                <Hash className="w-4 h-4 text-muted-foreground" />
+                <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider cursor-help border-b border-dotted border-muted-foreground/50 pb-0.5">
+                  Rounds
+                </label>
+              </div>
+              <div className="absolute left-0 top-full mt-2 px-3 py-1.5 bg-black/90 backdrop-blur-sm text-xs font-semibold text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
+                Sets the total number of songs in the game
+              </div>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Count</span>
@@ -170,11 +184,16 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
 
           {/* Hints */}
           <div className="space-y-3 mb-6 pt-2">
-            <div className="flex items-center gap-2">
-              <ImageIcon className="w-4 h-4 text-muted-foreground" />
-              <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-                Visual Hint
-              </label>
+            <div className="relative group w-max">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="w-4 h-4 text-muted-foreground" />
+                <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider cursor-help border-b border-dotted border-muted-foreground/50 pb-0.5">
+                  Visual Hint
+                </label>
+              </div>
+              <div className="absolute left-0 top-full mt-2 px-3 py-1.5 bg-black/90 backdrop-blur-sm text-xs font-semibold text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
+                Configure album art reveal settings to help guess the song
+              </div>
             </div>
             <div className="flex gap-2 flex-wrap">
               {[
@@ -196,27 +215,32 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
 
           {/* Categories */}
           <div className="space-y-3 pt-2">
-            <div className="flex items-center gap-2">
-              <Settings className="w-4 h-4 text-muted-foreground" />
-              <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-                Categories to Guess
-              </label>
+            <div className="relative group w-max">
+              <div className="flex items-center gap-2">
+                <Settings className="w-4 h-4 text-muted-foreground" />
+                <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider cursor-help border-b border-dotted border-muted-foreground/50 pb-0.5">
+                  Categories to Guess
+                </label>
+              </div>
+              <div className="absolute left-0 top-full mt-2 px-3 py-1.5 bg-black/90 backdrop-blur-sm text-xs font-semibold text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
+                Select which track fields you want to guess for extra points
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <label className="flex items-center gap-2 cursor-pointer opacity-70">
-                <input type="checkbox" checked readOnly className="accent-primary w-4 h-4 cursor-not-allowed" />
+                <input type="checkbox" checked readOnly className="appearance-none w-4 h-4 rounded border border-border bg-black checked:bg-primary checked:border-primary relative after:absolute after:hidden checked:after:block after:left-[4px] after:top-[1px] after:w-[5px] after:h-[10px] after:border-r-2 after:border-b-2 after:border-background after:rotate-45 cursor-not-allowed shrink-0" />
                 <span className="text-sm">Song Name (5 pts)</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={categories.artist} onChange={e => setCategories({...categories, artist: e.target.checked})} className="accent-primary w-4 h-4 cursor-pointer text-primary bg-muted rounded border-border" />
+                <input type="checkbox" checked={categories.artist} onChange={e => setCategories({...categories, artist: e.target.checked})} className="appearance-none w-4 h-4 rounded border border-muted-foreground bg-black checked:bg-primary checked:border-primary relative after:absolute after:hidden checked:after:block after:left-[4px] after:top-[1px] after:w-[5px] after:h-[10px] after:border-r-2 after:border-b-2 after:border-background after:rotate-45 cursor-pointer shrink-0 transition-colors" />
                 <span className="text-sm">Artist (2 pts)</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={categories.album} onChange={e => setCategories({...categories, album: e.target.checked})} className="accent-primary w-4 h-4 cursor-pointer rounded" />
+                <input type="checkbox" checked={categories.album} onChange={e => setCategories({...categories, album: e.target.checked})} className="appearance-none w-4 h-4 rounded border border-muted-foreground bg-black checked:bg-primary checked:border-primary relative after:absolute after:hidden checked:after:block after:left-[4px] after:top-[1px] after:w-[5px] after:h-[10px] after:border-r-2 after:border-b-2 after:border-background after:rotate-45 cursor-pointer shrink-0 transition-colors" />
                 <span className="text-sm">Album (3 pts)</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={categories.year} onChange={e => setCategories({...categories, year: e.target.checked})} className="accent-primary w-4 h-4 cursor-pointer rounded" />
+                <input type="checkbox" checked={categories.year} onChange={e => setCategories({...categories, year: e.target.checked})} className="appearance-none w-4 h-4 rounded border border-muted-foreground bg-black checked:bg-primary checked:border-primary relative after:absolute after:hidden checked:after:block after:left-[4px] after:top-[1px] after:w-[5px] after:h-[10px] after:border-r-2 after:border-b-2 after:border-background after:rotate-45 cursor-pointer shrink-0 transition-colors" />
                 <span className="text-sm">Release Year (2 pts)</span>
               </label>
             </div>
