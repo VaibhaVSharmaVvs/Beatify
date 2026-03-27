@@ -156,6 +156,8 @@ const Index = () => {
     startGame(gameSettings.playlistId, token, gameSettings.rounds, gameSettings.categories).then(res => {
       setIsStartingGame(false);
       setCurrentRoundData(res.data);
+      setScore(0);
+      setHistory([]);
       setPhase('playing');
       playUri(res.data.uri, gameSettings.difficulty);
       if (gameSettings.timerEnabled) {
@@ -281,8 +283,6 @@ const Index = () => {
           history={history}
           isStartingGame={isStartingGame}
           onPlayAgain={() => {
-            setScore(0);
-            setHistory([]);
             handleStartGame(settings);
           }}
           onChangeSettings={() => {
