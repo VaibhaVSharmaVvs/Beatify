@@ -22,7 +22,7 @@ const RoundResult = ({ albumArt, songName, artists, albumName, releaseYear, poin
     const percentage = maxScore > 0 ? (pointsEarned / maxScore) * 100 : 0;
     
     let soundFile = "";
-    if (percentage === 0) soundFile = "deep thud.mp3";
+    if (percentage === 0) soundFile = "game fail.mp3";
     else if (percentage <= 25) soundFile = "error call to attention.mp3";
     else if (percentage <= 50) soundFile = "noot noot.mp3";
     else if (percentage <= 75) soundFile = "bell chime.mp3";
