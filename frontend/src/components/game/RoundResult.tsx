@@ -88,11 +88,12 @@ interface RoundResultProps {
   pointsEarned: number;
   maxScore: number;
   isCorrect: boolean;
+  isLastRound: boolean;
   categories: { artist: boolean; album: boolean; year: boolean };
   onNextRound: () => void;
 }
 
-const RoundResult = ({ albumArt, songName, artists, albumName, releaseYear, pointsEarned, maxScore, isCorrect, categories, onNextRound }: RoundResultProps) => {
+const RoundResult = ({ albumArt, songName, artists, albumName, releaseYear, pointsEarned, maxScore, isCorrect, isLastRound, categories, onNextRound }: RoundResultProps) => {
   const [feedbackText, setFeedbackText] = useState("");
   const [badgeHue, setBadgeHue] = useState(0);
 
@@ -180,8 +181,8 @@ const RoundResult = ({ albumArt, songName, artists, albumName, releaseYear, poin
         {/* Next Round */}
         <div className="slide-up" style={{ animationDelay: "0.3s" }}>
           <Button variant="spotify" size="lg" className="w-full" onClick={onNextRound}>
-            Next Round
-            <ChevronRight className="w-5 h-5" />
+            {isLastRound ? "Finish Game" : "Next Round"}
+            <ChevronRight className="w-5 h-5 ml-1" />
           </Button>
         </div>
       </div>

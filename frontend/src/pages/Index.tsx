@@ -156,6 +156,8 @@ const Index = () => {
     startGame(gameSettings.playlistId, token, gameSettings.rounds, gameSettings.categories).then(res => {
       setIsStartingGame(false);
       setCurrentRoundData(res.data);
+      setScore(0);
+      setHistory([]);
       setPhase('playing');
       playUri(res.data.uri, gameSettings.difficulty);
       if (gameSettings.timerEnabled) {
@@ -269,6 +271,7 @@ const Index = () => {
           pointsEarned={roundResult.points_earned}
           maxScore={roundResult.max_score_per_round}
           isCorrect={roundResult.points_earned > 0}
+          isLastRound={currentRoundData?.round >= settings.rounds}
           categories={settings.categories}
           onNextRound={handleNextRound}
         />
@@ -278,7 +281,11 @@ const Index = () => {
           totalScore={score}
           totalRounds={settings.rounds}
           history={history}
+          isStartingGame={isStartingGame}
           onPlayAgain={() => {
+            handleStartGame(settings);
+          }}
+          onChangeSettings={() => {
             setScore(0);
             setHistory([]);
             setPhase("settings");
