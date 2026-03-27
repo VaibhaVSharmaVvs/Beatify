@@ -68,8 +68,8 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
         <div className="flex items-center justify-between fade-in">
           <div>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center border border-primary/30">
-                <Music className="w-6 h-6 text-primary" />
+              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center border border-primary/30 shrink-0">
+                <img src="/favicon.svg" alt="Beatify Logo" className="w-6 h-6" />
               </div>
               <h1 className="text-3xl font-bold tracking-tight">Beatify <span className="text-muted-foreground font-normal">| Guess The Song</span></h1>
             </div>
@@ -88,9 +88,14 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
 
           {/* Difficulty */}
           <div className="space-y-3 mb-6">
-            <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-              🕹️ Difficulty
-            </label>
+            <div className="relative group w-max">
+              <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2 cursor-help border-b border-dotted border-muted-foreground/50 pb-0.5">
+                🕹️ Difficulty <span className="opacity-50 text-xs">(?)</span>
+              </label>
+              <div className="absolute left-0 top-full mt-2 px-3 py-1.5 bg-black/90 backdrop-blur-sm text-xs font-semibold text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
+                Modulates the snippet duration to increase challenge
+              </div>
+            </div>
             <div className="flex gap-2 flex-wrap">
               {difficulties.map((d) => (
                 <Button
@@ -112,7 +117,7 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-muted-foreground" />
                 <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider cursor-help border-b border-dotted border-muted-foreground/50 pb-0.5">
-                  Timer
+                  Timer <span className="opacity-50 text-xs ml-0.5">(?)</span>
                 </label>
               </div>
               <div className="absolute left-0 top-full mt-2 px-3 py-1.5 bg-black/90 backdrop-blur-sm text-xs font-semibold text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
@@ -161,7 +166,7 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
               <div className="flex items-center gap-2">
                 <Hash className="w-4 h-4 text-muted-foreground" />
                 <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider cursor-help border-b border-dotted border-muted-foreground/50 pb-0.5">
-                  Rounds
+                  Rounds <span className="opacity-50 text-xs ml-0.5">(?)</span>
                 </label>
               </div>
               <div className="absolute left-0 top-full mt-2 px-3 py-1.5 bg-black/90 backdrop-blur-sm text-xs font-semibold text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
@@ -188,7 +193,7 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
               <div className="flex items-center gap-2">
                 <ImageIcon className="w-4 h-4 text-muted-foreground" />
                 <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider cursor-help border-b border-dotted border-muted-foreground/50 pb-0.5">
-                  Visual Hint
+                  Visual Hint <span className="opacity-50 text-xs ml-0.5">(?)</span>
                 </label>
               </div>
               <div className="absolute left-0 top-full mt-2 px-3 py-1.5 bg-black/90 backdrop-blur-sm text-xs font-semibold text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
@@ -219,7 +224,7 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
               <div className="flex items-center gap-2">
                 <Settings className="w-4 h-4 text-muted-foreground" />
                 <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider cursor-help border-b border-dotted border-muted-foreground/50 pb-0.5">
-                  Categories to Guess
+                  Categories to Guess <span className="opacity-50 text-xs ml-0.5">(?)</span>
                 </label>
               </div>
               <div className="absolute left-0 top-full mt-2 px-3 py-1.5 bg-black/90 backdrop-blur-sm text-xs font-semibold text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">

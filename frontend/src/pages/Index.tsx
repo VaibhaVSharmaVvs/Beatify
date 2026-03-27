@@ -279,6 +279,7 @@ const Index = () => {
           totalScore={score}
           totalRounds={settings.rounds}
           history={history}
+          isStartingGame={isStartingGame}
           onPlayAgain={() => {
             setScore(0);
             setHistory([]);

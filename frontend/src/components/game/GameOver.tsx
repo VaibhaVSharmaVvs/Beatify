@@ -1,15 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { RotateCcw, Trophy } from "lucide-react";
+import { RotateCcw, Trophy, Loader2 } from "lucide-react";
 
 interface GameOverProps {
   totalScore: number;
   totalRounds: number;
   history: any[];
+  isStartingGame: boolean;
   onPlayAgain: () => void;
   onChangeSettings: () => void;
 }
 
-const GameOver = ({ totalScore, totalRounds, history, onPlayAgain, onChangeSettings }: GameOverProps) => {
+const GameOver = ({ totalScore, totalRounds, history, isStartingGame, onPlayAgain, onChangeSettings }: GameOverProps) => {
   return (
     <div className="min-h-screen px-4 py-8 flex items-center justify-center">
       <div className="max-w-xl w-full space-y-8 text-center">
@@ -57,11 +58,20 @@ const GameOver = ({ totalScore, totalRounds, history, onPlayAgain, onChangeSetti
 
         {/* Actions */}
         <div className="slide-up max-w-sm mx-auto space-y-3 pt-6" style={{ animationDelay: "0.3s" }}>
-          <Button variant="spotify" size="lg" className="w-full" onClick={onPlayAgain}>
-            <RotateCcw className="w-5 h-5 mr-2" />
-            Play Again (Same Settings)
+          <Button variant="spotify" size="lg" className="w-full" onClick={onPlayAgain} disabled={isStartingGame}>
+            {isStartingGame ? (
+              <span className="flex items-center justify-center gap-2">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Loading Tracks...
+              </span>
+            ) : (
+              <>
+                <RotateCcw className="w-5 h-5 mr-2" />
+                Play Again (Same Settings)
+              </>
+            )}
           </Button>
-          <Button variant="outline" size="lg" className="w-full bg-transparent border-card hover:bg-card/50" onClick={onChangeSettings}>
+          <Button variant="outline" size="lg" className="w-full bg-transparent border-card hover:bg-card/50" onClick={onChangeSettings} disabled={isStartingGame}>
             Change Settings / Playlist
           </Button>
         </div>
