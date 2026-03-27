@@ -1,4 +1,4 @@
-import { Settings, Clock, Hash, ChevronRight, Loader2, Image as ImageIcon, Music } from "lucide-react";
+import { Settings, Clock, Hash, ChevronRight, Loader2, Image as ImageIcon, Music, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -88,12 +88,15 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
 
           {/* Difficulty */}
           <div className="space-y-3 mb-6">
-            <div className="relative group w-max">
-              <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2 cursor-help border-b border-dotted border-muted-foreground/50 pb-0.5">
-                🕹️ Difficulty <span className="opacity-50 text-xs">(?)</span>
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                🕹️ Difficulty
               </label>
-              <div className="absolute left-0 top-full mt-2 px-3 py-1.5 bg-black/90 backdrop-blur-sm text-xs font-semibold text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
-                Modulates the snippet duration to increase challenge
+              <div className="relative group flex items-center justify-center cursor-help">
+                <HelpCircle className="w-3.5 h-3.5 text-muted-foreground opacity-50 hover:opacity-100 transition-opacity" />
+                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1.5 bg-black/95 text-xs font-medium text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
+                  Modulates the snippet duration to increase challenge
+                </div>
               </div>
             </div>
             <div className="flex gap-2 flex-wrap">
@@ -113,15 +116,16 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
 
           {/* Timer */}
           <div className="space-y-3 mb-6">
-            <div className="relative group w-max">
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-muted-foreground" />
-                <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider cursor-help border-b border-dotted border-muted-foreground/50 pb-0.5">
-                  Timer <span className="opacity-50 text-xs ml-0.5">(?)</span>
-                </label>
-              </div>
-              <div className="absolute left-0 top-full mt-2 px-3 py-1.5 bg-black/90 backdrop-blur-sm text-xs font-semibold text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
-                Controls the duration of each round
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-muted-foreground" />
+              <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                Timer
+              </label>
+              <div className="relative group flex items-center justify-center cursor-help ml-1">
+                <HelpCircle className="w-3.5 h-3.5 text-muted-foreground opacity-50 hover:opacity-100 transition-opacity" />
+                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1.5 bg-black/95 text-xs font-medium text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
+                  Controls the duration of each round
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -162,15 +166,16 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
 
           {/* Rounds */}
           <div className="space-y-3">
-            <div className="relative group w-max">
-              <div className="flex items-center gap-2">
-                <Hash className="w-4 h-4 text-muted-foreground" />
-                <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider cursor-help border-b border-dotted border-muted-foreground/50 pb-0.5">
-                  Rounds <span className="opacity-50 text-xs ml-0.5">(?)</span>
-                </label>
-              </div>
-              <div className="absolute left-0 top-full mt-2 px-3 py-1.5 bg-black/90 backdrop-blur-sm text-xs font-semibold text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
-                Sets the total number of songs in the game
+            <div className="flex items-center gap-2">
+              <Hash className="w-4 h-4 text-muted-foreground" />
+              <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                Rounds
+              </label>
+              <div className="relative group flex items-center justify-center cursor-help ml-1">
+                <HelpCircle className="w-3.5 h-3.5 text-muted-foreground opacity-50 hover:opacity-100 transition-opacity" />
+                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1.5 bg-black/95 text-xs font-medium text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
+                  Sets the total number of songs in the game
+                </div>
               </div>
             </div>
             <div className="flex justify-between text-sm">
@@ -189,15 +194,16 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
 
           {/* Hints */}
           <div className="space-y-3 mb-6 pt-2">
-            <div className="relative group w-max">
-              <div className="flex items-center gap-2">
-                <ImageIcon className="w-4 h-4 text-muted-foreground" />
-                <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider cursor-help border-b border-dotted border-muted-foreground/50 pb-0.5">
-                  Visual Hint <span className="opacity-50 text-xs ml-0.5">(?)</span>
-                </label>
-              </div>
-              <div className="absolute left-0 top-full mt-2 px-3 py-1.5 bg-black/90 backdrop-blur-sm text-xs font-semibold text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
-                Configure album art reveal settings to help guess the song
+            <div className="flex items-center gap-2">
+              <ImageIcon className="w-4 h-4 text-muted-foreground" />
+              <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                Visual Hint
+              </label>
+              <div className="relative group flex items-center justify-center cursor-help ml-1">
+                <HelpCircle className="w-3.5 h-3.5 text-muted-foreground opacity-50 hover:opacity-100 transition-opacity" />
+                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1.5 bg-black/95 text-xs font-medium text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
+                  Configure album art reveal settings to help guess the song
+                </div>
               </div>
             </div>
             <div className="flex gap-2 flex-wrap">
@@ -220,15 +226,16 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
 
           {/* Categories */}
           <div className="space-y-3 pt-2">
-            <div className="relative group w-max">
-              <div className="flex items-center gap-2">
-                <Settings className="w-4 h-4 text-muted-foreground" />
-                <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider cursor-help border-b border-dotted border-muted-foreground/50 pb-0.5">
-                  Categories to Guess <span className="opacity-50 text-xs ml-0.5">(?)</span>
-                </label>
-              </div>
-              <div className="absolute left-0 top-full mt-2 px-3 py-1.5 bg-black/90 backdrop-blur-sm text-xs font-semibold text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
-                Select which track fields you want to guess for extra points
+            <div className="flex items-center gap-2">
+              <Settings className="w-4 h-4 text-muted-foreground" />
+              <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                Categories to Guess
+              </label>
+              <div className="relative group flex items-center justify-center cursor-help ml-1">
+                <HelpCircle className="w-3.5 h-3.5 text-muted-foreground opacity-50 hover:opacity-100 transition-opacity" />
+                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1.5 bg-black/95 text-xs font-medium text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
+                  Select which track fields you want to guess for extra points
+                </div>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
