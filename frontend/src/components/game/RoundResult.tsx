@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Check, X } from "lucide-react";
 
@@ -8,12 +9,31 @@ interface RoundResultProps {
   albumName: string;
   releaseYear: string;
   pointsEarned: number;
+  maxScore: number;
   isCorrect: boolean;
   categories: { artist: boolean; album: boolean; year: boolean };
   onNextRound: () => void;
 }
 
-const RoundResult = ({ albumArt, songName, artists, albumName, releaseYear, pointsEarned, isCorrect, categories, onNextRound }: RoundResultProps) => {
+const RoundResult = ({ albumArt, songName, artists, albumName, releaseYear, pointsEarned, maxScore, isCorrect, categories, onNextRound }: RoundResultProps) => {
+  
+  // Play dynamic SFX based on score percentage
+  useEffect(() => {
+    const percentage = maxScore > 0 ? (pointsEarned / maxScore) * 100 : 0;
+    
+    let soundFile = "";
+    if (percentage === 0) soundFile = "game fail.mp3";
+    else if (percentage <= 25) soundFile = "error call to attention.mp3";
+    else if (percentage <= 50) soundFile = "noot noot.mp3";
+    else if (percentage <= 75) soundFile = "bell chime.mp3";
+    else if (percentage < 100) soundFile = "game level complete.mp3";
+    else soundFile = "violin win.mp3";
+
+    const audio = new Audio(`/audio/${soundFile}`);
+    audio.volume = 0.5;
+    audio.play().catch(e => console.error("Audio playback blocked by browser:", e));
+  }, [pointsEarned, maxScore]);
+
   return (
     <div className="min-h-screen px-4 py-8 flex items-center justify-center">
       <div className="max-w-sm w-full space-y-6 text-center">

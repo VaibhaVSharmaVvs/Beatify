@@ -267,6 +267,7 @@ const Index = () => {
           albumName={roundResult.correct_album}
           releaseYear={roundResult.correct_year}
           pointsEarned={roundResult.points_earned}
+          maxScore={roundResult.max_score_per_round}
           isCorrect={roundResult.points_earned > 0}
           categories={settings.categories}
           onNextRound={handleNextRound}
