@@ -21,8 +21,8 @@ const GameOver = ({ totalScore, totalRounds, categories, history, isStartingGame
   let nameHits = 0, artistHits = 0, albumHits = 0, yearHits = 0;
 
   history.forEach(song => {
-    // Streaks - check if earned absolute maximum
-    if (song.points_earned === song.max_score_per_round) {
+    // Streaks - use >= so featured artist bonus points above max don't break the chain
+    if (song.points_earned >= song.max_score_per_round) {
       currentStreak++;
       maxStreak = Math.max(maxStreak, currentStreak);
     } else {
@@ -45,6 +45,7 @@ const GameOver = ({ totalScore, totalRounds, categories, history, isStartingGame
 
   const avgTime = validResponseCount > 0 ? (totalResponseTime / validResponseCount).toFixed(1) : "-";
   const bestTime = fastestTime !== 999 ? `${fastestTime.toFixed(1)}s` : "-";
+  const isPerfectGame = maxStreak === totalRounds && totalRounds > 0;
 
   return (
     <div className="min-h-screen px-4 py-8 flex flex-col items-center justify-start overflow-y-auto">
@@ -63,9 +64,15 @@ const GameOver = ({ totalScore, totalRounds, categories, history, isStartingGame
         {/* Hero Meta Group */}
         <div className="game-card slide-up mx-auto w-full relative overflow-hidden" style={{ animationDelay: "0.10s" }}>
           {maxStreak > 0 && (
-            <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 bg-orange-500/10 border border-orange-500/20 text-orange-500 rounded-lg text-xs font-bold animate-pulse">
-              <Flame className="w-3.5 h-3.5 fill-orange-500" />
-              {maxStreak} Streak
+            <div className={`absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold ${
+              isPerfectGame
+                ? 'bg-orange-500/20 border border-orange-400/40 text-orange-300'
+                : 'bg-orange-500/10 border border-orange-500/20 text-orange-500 animate-pulse'
+            }`}
+              style={isPerfectGame ? { animation: 'firePulse 0.6s ease-in-out infinite alternate' } : {}}
+            >
+              <Flame className={`w-3.5 h-3.5 ${isPerfectGame ? 'fill-orange-300' : 'fill-orange-500'}`} />
+              {isPerfectGame ? `${maxStreak} PERFECT!` : `${maxStreak} Streak`}
             </div>
           )}
           
