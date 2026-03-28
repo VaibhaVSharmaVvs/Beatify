@@ -54,6 +54,13 @@ const Index = () => {
   const playerRef = useRef<any>(null);
   const pendingTimerRef = useRef<number | null>(null);
   const roundStartTimeRef = useRef<number | null>(null);
+  // Holds the latest typed guess values so timer expiry can claim credit for partial answers
+  const currentGuessRef = useRef<{ song: string; artist: string; album: string; year: string }>({
+    song: '', artist: '', album: '', year: ''
+  });
+
+  // Live streak state
+  const [currentStreak, setCurrentStreak] = useState(0);
 
   // 1. Check for token on mount
   useEffect(() => {
@@ -162,8 +169,10 @@ const Index = () => {
       setCurrentRoundData(res.data);
       setScore(0);
       setHistory([]);
+      setCurrentStreak(0);
       setPhase('playing');
       roundStartTimeRef.current = null;
+      currentGuessRef.current = { song: '', artist: '', album: '', year: '' };
       playUri(res.data.uri, gameSettings.difficulty);
       if (gameSettings.timerEnabled) {
         setTimeLeft(gameSettings.timerSeconds);
@@ -197,10 +206,10 @@ const Index = () => {
     }, 1000);
   };
 
-  // Timer runout
+  // Timer runout — submit whatever is currently typed
   useEffect(() => {
     if (phase === 'playing' && settings.timerEnabled && timeLeft === 0) {
-      submitGuessAndShowResults({ song: '', artist: '', album: '', year: '' });
+      submitGuessAndShowResults(currentGuessRef.current);
     }
   }, [timeLeft, phase, settings.timerEnabled]);
 
@@ -208,7 +217,6 @@ const Index = () => {
     if (timerRef.current) clearInterval(timerRef.current);
     if (playerRef.current) playerRef.current.pause();
     
-    // Evaluate pure response time natively
     const responseTime = roundStartTimeRef.current 
       ? (Date.now() - roundStartTimeRef.current) / 1000 
       : null;
@@ -223,6 +231,12 @@ const Index = () => {
       setRoundResult(enrichedResult);
       setScore(res.data.total_score);
       setHistory(prev => [...prev, enrichedResult]);
+      // Update live streak
+      if (res.data.points_earned >= res.data.max_score_per_round) {
+        setCurrentStreak(prev => prev + 1);
+      } else {
+        setCurrentStreak(0);
+      }
       setPhase('result');
     }).catch(err => toast.error("Failed to submit guess"));
   };
@@ -236,6 +250,7 @@ const Index = () => {
         setRoundResult(null);
         setPhase('playing');
         roundStartTimeRef.current = null;
+        currentGuessRef.current = { song: '', artist: '', album: '', year: '' };
         playUri(res.data.uri, settings.difficulty);
         if (settings.timerEnabled) {
           setTimeLeft(settings.timerSeconds);
@@ -270,6 +285,8 @@ const Index = () => {
           hintMode={settings.hintMode}
           albumArt={currentRoundData?.image_url}
           isPlaying={isAudioPlaying}
+          currentStreak={currentStreak}
+          onGuessChange={(g) => { currentGuessRef.current = g; }}
           onSubmitGuess={submitGuessAndShowResults}
         />
       )}
