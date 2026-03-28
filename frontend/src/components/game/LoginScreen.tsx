@@ -1,4 +1,4 @@
-import { Music } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import Rulebook from "./Rulebook";
 
@@ -12,7 +12,7 @@ const LoginScreen = ({ onConnect }: LoginScreenProps) => {
       <div className="max-w-md w-full text-center space-y-8 slide-up">
         <div className="space-y-4">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-primary/10 border border-primary/20 mb-2">
-            <Music className="w-10 h-10 text-primary" />
+            <img src="/favicon.svg" alt="Beatify Logo" className="w-12 h-12" />
           </div>
           <h1 className="text-4xl font-bold tracking-tight glow-text">
             Beatify | Guess The Song
@@ -40,7 +40,7 @@ const LoginScreen = ({ onConnect }: LoginScreenProps) => {
       </div>
       
       {/* Rulebook Hover Widget */}
-      <div className="fixed bottom-6 right-6 z-40">
+      <div className="fixed bottom-6 left-6 z-40">
         <Rulebook />
       </div>
     </div>

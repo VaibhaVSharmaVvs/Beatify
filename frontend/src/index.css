@@ -53,11 +53,66 @@
     --game-error: 0 72% 51%;
     --game-glow: 141 73% 42%;
   }
+
+  /* ── Light Mode ── */
+  .light {
+    --background: 0 0% 98%;
+    --foreground: 220 20% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 10%;
+
+    --primary: 141 73% 36%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 140 20% 94%;
+    --secondary-foreground: 220 20% 15%;
+
+    --muted: 140 12% 94%;
+    --muted-foreground: 220 10% 45%;
+
+    --accent: 141 73% 36%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 140 12% 88%;
+    --input: 140 12% 90%;
+    --ring: 141 73% 36%;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 20% 10%;
+    --sidebar-primary: 141 73% 36%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 140 20% 94%;
+    --sidebar-accent-foreground: 220 20% 15%;
+    --sidebar-border: 140 12% 88%;
+    --sidebar-ring: 141 73% 36%;
+
+    /* Game-specific tokens */
+    --game-surface: 140 15% 96%;
+    --game-surface-hover: 140 15% 92%;
+    --game-success: 141 73% 36%;
+    --game-warning: 38 92% 45%;
+    --game-error: 0 72% 51%;
+    --game-glow: 141 73% 36%;
+  }
 }
 
 @layer base {
   * {
     @apply border-border;
+    transition:
+      background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+      color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+      border-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+      fill 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+      stroke 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   body {
