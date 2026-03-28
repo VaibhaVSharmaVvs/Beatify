@@ -53,6 +53,7 @@ const Index = () => {
   const playbackTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const playerRef = useRef<any>(null);
   const pendingTimerRef = useRef<number | null>(null);
+  const roundStartTimeRef = useRef<number | null>(null);
 
   // 1. Check for token on mount
   useEffect(() => {
@@ -132,6 +133,9 @@ const Index = () => {
             startTimer(pendingTimerRef.current);
             pendingTimerRef.current = null;
           }
+          if (roundStartTimeRef.current === null) {
+            roundStartTimeRef.current = Date.now();
+          }
         }
       });
 
@@ -159,6 +163,7 @@ const Index = () => {
       setScore(0);
       setHistory([]);
       setPhase('playing');
+      roundStartTimeRef.current = null;
       playUri(res.data.uri, gameSettings.difficulty);
       if (gameSettings.timerEnabled) {
         setTimeLeft(gameSettings.timerSeconds);
@@ -203,8 +208,10 @@ const Index = () => {
     if (timerRef.current) clearInterval(timerRef.current);
     if (playerRef.current) playerRef.current.pause();
     
-    // Evaluate pure response time
-    const responseTime = settings.timerEnabled ? settings.timerSeconds - timeLeft : null;
+    // Evaluate pure response time natively
+    const responseTime = roundStartTimeRef.current 
+      ? (Date.now() - roundStartTimeRef.current) / 1000 
+      : null;
     
     submitGuess({
       guess_name: guess.song,
@@ -228,6 +235,7 @@ const Index = () => {
         setCurrentRoundData(res.data);
         setRoundResult(null);
         setPhase('playing');
+        roundStartTimeRef.current = null;
         playUri(res.data.uri, settings.difficulty);
         if (settings.timerEnabled) {
           setTimeLeft(settings.timerSeconds);
