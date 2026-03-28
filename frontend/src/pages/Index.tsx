@@ -4,6 +4,8 @@ import GameSettings from "@/components/game/GameSettings";
 import GamePlay from "@/components/game/GamePlay";
 import RoundResult from "@/components/game/RoundResult";
 import GameOver from "@/components/game/GameOver";
+import ThemeToggle from "@/components/game/ThemeToggle";
+import { useTheme } from "@/hooks/use-theme";
 import { getPlaylists, startGame, submitGuess, nextRound, playTrack } from "../api";
 import { toast } from "sonner";
 
@@ -17,6 +19,7 @@ const DIFFICULTIES: Record<string, { duration: number; displayDuration: number }
 };
 
 const Index = () => {
+  const { theme, toggle } = useTheme();
   const [phase, setPhase] = useState<GamePhase>("login");
   const [token, setToken] = useState<string | null>(null);
   const [playlists, setPlaylists] = useState<any[]>([]);
@@ -262,6 +265,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <ThemeToggle theme={theme} onToggle={toggle} />
       {phase === "login" && (
         <LoginScreen onConnect={() => window.location.href = 'http://localhost:8000/login'} />
       )}
@@ -272,6 +276,7 @@ const Index = () => {
           onStartGame={handleStartGame}
           isLoadingPlaylists={isLoadingPlaylists}
           isStartingGame={isStartingGame}
+          isSpotifyConnected={isPlayerReady}
         />
       )}
       {phase === "playing" && (
@@ -286,6 +291,7 @@ const Index = () => {
           albumArt={currentRoundData?.image_url}
           isPlaying={isAudioPlaying}
           currentStreak={currentStreak}
+          isSpotifyConnected={isPlayerReady}
           onGuessChange={(g) => { currentGuessRef.current = g; }}
           onSubmitGuess={submitGuessAndShowResults}
         />

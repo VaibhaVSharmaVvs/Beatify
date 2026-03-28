@@ -13,11 +13,12 @@ interface GamePlayProps {
   albumArt?: string;
   isPlaying: boolean;
   currentStreak: number;
+  isSpotifyConnected?: boolean;
   onGuessChange: (g: { song: string; artist: string; album: string; year: string }) => void;
   onSubmitGuess: (guess: { song: string; artist: string; album: string; year: string }) => void;
 }
 
-const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, categories, hintMode, albumArt, isPlaying, currentStreak, onGuessChange, onSubmitGuess }: GamePlayProps) => {
+const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, categories, hintMode, albumArt, isPlaying, currentStreak, isSpotifyConnected, onGuessChange, onSubmitGuess }: GamePlayProps) => {
   const [song, setSong] = useState("");
   const [artist, setArtist] = useState("");
   const [album, setAlbum] = useState("");
@@ -57,7 +58,26 @@ const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, categorie
             <h1 className="text-2xl font-bold tracking-tight">Beatify | Guess The Song</h1>
             <span className="score-display text-muted-foreground text-sm">Score: {score}</span>
           </div>
-          <div className="game-badge">● Online</div>
+          <div
+            className="game-badge"
+            style={{
+              color: isSpotifyConnected ? undefined : 'hsl(var(--muted-foreground))',
+              borderColor: isSpotifyConnected ? undefined : 'hsl(var(--border))'
+            }}
+          >
+            <span
+              style={{
+                display: 'inline-block',
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                backgroundColor: isSpotifyConnected ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
+                marginRight: '6px',
+                animation: isSpotifyConnected ? 'pulse 2s infinite' : 'none'
+              }}
+            />
+            {isSpotifyConnected ? 'Online' : 'Offline'}
+          </div>
         </div>
 
         {/* Round & Timer */}

@@ -1,4 +1,4 @@
-import { Settings, Clock, Hash, ChevronRight, Loader2, Image as ImageIcon, Music, HelpCircle } from "lucide-react";
+import { Settings, Clock, Hash, ChevronRight, Loader2, Image as ImageIcon, Music, HelpCircle, Gamepad2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,6 +30,7 @@ interface GameSettingsProps {
   }) => void;
   isLoadingPlaylists?: boolean;
   isStartingGame?: boolean;
+  isSpotifyConnected?: boolean;
 }
 
 const difficulties = [
@@ -39,7 +40,7 @@ const difficulties = [
   { id: "impossible", label: "Virtuoso", seconds: "1s", color: "text-[hsl(var(--game-error))]" },
 ];
 
-const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isStartingGame }: GameSettingsProps) => {
+const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isStartingGame, isSpotifyConnected }: GameSettingsProps) => {
   const [difficulty, setDifficulty] = useState("easy");
   const [timerEnabled, setTimerEnabled] = useState(true);
   const [timerSeconds, setTimerSeconds] = useState(10);
@@ -74,7 +75,26 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
               <h1 className="text-3xl font-bold tracking-tight">Beatify <span className="text-muted-foreground font-normal">| Guess The Song</span></h1>
             </div>
             <div className="flex items-center gap-3 mt-3">
-              <span className="game-badge">● Online</span>
+              <span
+                className="game-badge"
+                style={{
+                  color: isSpotifyConnected ? undefined : 'hsl(var(--muted-foreground))',
+                  borderColor: isSpotifyConnected ? undefined : 'hsl(var(--border))'
+                }}
+              >
+                <span
+                  style={{
+                    display: 'inline-block',
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    backgroundColor: isSpotifyConnected ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
+                    marginRight: '6px',
+                    animation: isSpotifyConnected ? 'pulse 2s infinite' : 'none'
+                  }}
+                />
+                {isSpotifyConnected ? 'Online' : 'Offline'}
+              </span>
             </div>
           </div>
         </div>
@@ -89,8 +109,9 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
           {/* Difficulty */}
           <div className="space-y-3 mb-6">
             <div className="flex items-center gap-2">
+              <Gamepad2 className="w-4 h-4 text-muted-foreground" />
               <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                🕹️ Difficulty
+                Difficulty
               </label>
               <div className="relative group flex items-center justify-center cursor-help">
                 <HelpCircle className="w-3.5 h-3.5 text-muted-foreground opacity-50 hover:opacity-100 transition-opacity" />
@@ -325,7 +346,7 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
       </div>
       
       {/* Rulebook Hover Widget */}
-      <div className="fixed bottom-6 right-6 z-40">
+      <div className="fixed bottom-6 left-6 z-40">
         <Rulebook />
       </div>
     </div>
