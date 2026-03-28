@@ -1,131 +1,279 @@
-# 🎵 Beatify | Guess The Song
-
 <div align="center">
-  <img src="frontend/public/favicon.svg" alt="Beatify Logo" width="100"/>
-  <br/>
-  <strong>Test your music knowledge with your own Spotify playlists!</strong>
-</div>
 
-<br/>
+<img src="frontend/public/favicon.svg" width="80" height="80" alt="Beatify Logo" />
 
-**Beatify** is a full-stack, state-of-the-art music trivia application. Log in with your Spotify account, select your favorite playlists, and test your knowledge by guessing the song name, artist, and album before the timer runs out!
+# Beatify
 
----
+**Guess the song from your own Spotify playlists.**
 
-## 🎨 Visuals
-
-Here is a look at the fully redesigned, glassmorphic UI matching Spotify's dark aesthetic:
-
-<div align="center">
-  <img src="pics/Screenshot%202026-03-21%20180307.png" width="48%" />
-  <img src="pics/Screenshot%202026-03-21%20180358.png" width="48%" />
-</div>
-<div align="center">
-  <img src="pics/Screenshot%202026-03-21%20180409.png" width="48%" />
-  <img src="pics/Screenshot%202026-03-21%20180433.png" width="48%" />
-</div>
-<div align="center">
-  <img src="pics/Screenshot%202026-03-21%20180445.png" width="48%" />
-  <img src="pics/Screenshot%202026-03-21%20180623.png" width="48%" />
 </div>
 
 ---
 
-## 🧠 Architecture & Flow
+## 📸 Screenshots
 
-Beatify uses a powerful **hybrid architecture**. 
-
-### 1. The Brain (Python + FastAPI)
-The Python backend is in charge of all heavy lifting, business logic, and security:
-- **OAuth Trading**: Securely trades Spotify verification codes for Access Tokens using your `SPOTIFY_CLIENT_SECRET`.
-- **Game State**: Dictates game initialization, limits rounds, and fetches tracks from Spotify's Web API.
-- **Robust Scoring**: Uses `rapidfuzz` string-matching algorithm to accurately score user text inputs against the real Spotify metadata, handling typos gracefully!
-
-### 2. The Paint (React + Vite + TypeScript)
-The frontend is a beautifully styled, strictly presentation layer built on **Lovable** template defaults:
-- Designed with **Tailwind CSS**, `shadcn/ui`, and `lucide-react` icons for a premium, responsive workflow.
-- Responsible for initializing the **Spotify Web Playback SDK** directly in the browser to stream the premium audio.
-- Entirely stateless; it simply passes your `Authorization: Bearer` token to Python and visually renders Python's responses!
+<table>
+  <tr>
+    <td align="center"><img src="pics/Login dark.png" alt="Login – Dark" /><br/><sub>Login · Dark</sub></td>
+    <td align="center"><img src="pics/Login light.png" alt="Login – Light" /><br/><sub>Login · Light</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="pics/Game settings dark.png" alt="Settings – Dark" /><br/><sub>Game Settings · Dark</sub></td>
+    <td align="center"><img src="pics/Game settings light.png" alt="Settings – Light" /><br/><sub>Game Settings · Light</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="pics/Select Playlist dark.png" alt="Playlist – Dark" /><br/><sub>Playlist Selection · Dark</sub></td>
+    <td align="center"><img src="pics/Select Playlist light.png" alt="Playlist – Light" /><br/><sub>Playlist Selection · Light</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="pics/Round dark.png" alt="Gameplay – Dark" /><br/><sub>Gameplay · Dark</sub></td>
+    <td align="center"><img src="pics/Round light.png" alt="Gameplay – Light" /><br/><sub>Gameplay · Light</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="pics/Round score dark.png" alt="Round Result – Dark" /><br/><sub>Round Result · Dark</sub></td>
+    <td align="center"><img src="pics/Round score light.png" alt="Round Result – Light" /><br/><sub>Round Result · Light</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="pics/Results screen dark.png" alt="End Screen – Dark" /><br/><sub>End Screen · Dark</sub></td>
+    <td align="center"><img src="pics/Results screen light.png" alt="End Screen – Light" /><br/><sub>End Screen · Light</sub></td>
+  </tr>
+</table>
 
 ---
 
-## 📂 Directory Structure
+## 🚀 Overview
 
-```text
-Game/
-├── backend/                  # Python FastAPI Brain
-│   ├── .env                  # Secures your Spotify API keys
-│   ├── main.py               # API Bootstrapper & CORS
-│   ├── auth.py               # Secure /login, /callback loops
-│   ├── game.py               # Fuzz scoring logic & API endpoints
-│   ├── models.py             # Pydantic data schemas
-│   └── requirements.txt      # Python dependencies
-│
-├── frontend/                 # React UI Layer
-│   ├── src/
-│   │   ├── api.js            # Axios bindings linking UI to Python Backend
-│   │   ├── App.tsx           # React Router
-│   │   ├── index.css         # Global Tailwind & Theme CSS
-│   │   ├── pages/            # View Containers (Index.tsx handles App Loop)
-│   │   └── components/       # Dumb UI components (GameSettings, GamePlay)
-│   ├── public/               # Static assets & SVG Favicon
-│   ├── index.html            # Vite Injection point & Meta Tags
-│   └── vite.config.ts        # Bootstraps Port 5173 
-│
-└── pics/                     # Demo UI Screenshots
+Beatify is a music trivia game that turns any of your Spotify playlists into a live guessing challenge. Each round streams a short clip of a real song directly through the Spotify Web Playback SDK — no uploads, no pre-seeded data. You type what you hear: song name, artist, album, and release year.
+
+The backend fetches tracks on demand from Spotify's API, scores your answers server-side using fuzzy string matching, and returns per-field breakdowns per round. A post-game analytics screen shows your accuracy rates, reflex times, and best streak across the session.
+
+---
+
+## 🎮 Features
+
+### Core Gameplay
+
+- **Live Spotify Playback** — streams actual songs via the Spotify Web Playback SDK; no pre-recorded clips
+- **Configurable Snippet Duration** — four difficulty tiers control how long the clip plays before you must guess
+- **Multi-field Guessing** — independently toggle Song Name (always on), Artist, Album, and Release Year per session
+- **Fuzzy Answer Matching** — server-side scoring via `rapidfuzz`; minor typos and small variations are forgiven
+- **Featured Artist Bonus** — each correctly guessed featured artist beyond the primary earns +1 extra point
+- **Singles Rule** — when a track's album name equals its title (i.e. it's a single), typing `"single"`, `"none"`, `"no album"`, or the song name itself in the album field is accepted for full points
+
+### Game Mechanics
+
+- **Difficulty Levels**
+
+  | Label | Snippet Duration |
+  |-------|-----------------|
+  | Listener | 10 seconds |
+  | Performer | 5 seconds |
+  | Producer | 3 seconds |
+  | Virtuoso | 1 second |
+
+- **Scoring**
+
+  | Category | Points |
+  |----------|--------|
+  | Song Name | 5 |
+  | Primary Artist | 2 |
+  | Album | 3 |
+  | Release Year | 2 |
+  | Each Featured Artist | +1 |
+
+- **Answer Timer** — optional countdown (10–60 s); auto-submits whatever is typed when it expires
+- **Visual Hints** — three modes: Disabled (equalizer animation only), Progressive (album art reveals over 10 s), Manual Reveal (tap to unblur)
+- **Streak Tracking** — live 🔥 counter increments on every perfect-score round; resets on any miss
+- **Sanitization** — parenthesised text (e.g. `(Remix)`, `[Deluxe]`) stripped before comparison so partial matches don't penalise
+- **Random Track Sampling** — backend samples random offsets across the full playlist without downloading all tracks; works on playlists of any size
+
+### System Features
+
+- **Dark / Light Mode** — Spotify-inspired colour palette; preference persisted in `localStorage` and applied before React hydrates (no flash)
+- **Persistent Auth** — access and refresh tokens stored in `localStorage`; a global Axios interceptor silently refreshes the access token on 401s
+- **Post-game Analytics** — average and fastest reflex time, per-category hit accuracy percentages, max streak, scrollable match history with album art and per-field result indicators
+- **Tiered Audio Feedback** — six distinct sound effects mapped to score percentage tiers on each round result screen
+- **Tiered Text Feedback** — randomised sarcastic / congratulatory message per score tier shown on the round result screen
+- **Inline Rulebook** — floating help widget available on every screen with full rules, scoring table, and typo-tolerance explanation
+
+---
+
+## 🧠 Architecture
+
+```
+User
+ │
+ ├─► React Frontend (Vite + TypeScript)
+ │     ├─ OAuth redirect → Spotify Accounts
+ │     ├─ Token stored in localStorage
+ │     ├─ Axios (with 401 interceptor + auto-refresh)
+ │     └─ Spotify Web Playback SDK (in-browser audio)
+ │
+ └─► FastAPI Backend
+       ├─ /login          → redirect to Spotify OAuth
+       ├─ /callback       → exchange code for tokens, redirect to frontend
+       ├─ /refresh        → refresh access token
+       ├─ /playlists      → proxy GET /me/playlists
+       ├─ /start_game     → random-sample tracks, initialise game state
+       ├─ /submit_guess   → fuzzy-score answer, return field breakdown
+       └─ /next_round     → advance game state, return next track URI
 ```
 
----
-
-## 🎮 How to Play
-
-1. **Connect**: Click "Connect with Spotify". You will be bounced to your Python backend to securely approve the App.
-2. **Setup**: Once redirected, select a Game Difficulty, toggle the timer, pick round counts, and click one of your fetched Playlists!
-3. **Listen**: Snippets play dynamically in your browser. (Requires Spotify Premium).
-4. **Guess**: Type the Song Name, Artist, and Album before the timer expires. 
-5. **Score**: 
-   - **Song Name**: 5 Points
-   - **Artist**: 2 Points
-   - **Album**: 3 Points
-   - *(Total: 10 points per round limit!)*
+Game state is held in memory server-side, keyed by the last 10 characters of the access token. Track metadata and URIs come from the Spotify Web API; audio playback is handled entirely client-side by the SDK.
 
 ---
 
-## 🚀 Local Setup
+## ⚙️ Tech Stack
 
-### 1. Requirements
+### Frontend
+| Library | Purpose |
+|---------|---------|
+| React 18 + TypeScript | UI framework |
+| Vite | Build tool and dev server |
+| Tailwind CSS | Utility-first styling |
+| shadcn/ui + Radix UI | Accessible component primitives |
+| Axios | HTTP client with interceptor-based token refresh |
+| Sonner | Toast notifications |
+| lucide-react | Icon set |
+| Spotify Web Playback SDK | In-browser audio streaming |
+
+### Backend
+| Library | Purpose |
+|---------|---------|
+| FastAPI | API framework |
+| Uvicorn | ASGI server |
+| Requests | Spotify Web API calls |
+| rapidfuzz | Fuzzy string matching for answer scoring |
+| python-dotenv | Environment variable loading |
+
+### Integrations
+- **Spotify Web API** — playlists, track metadata, OAuth 2.0 Authorization Code flow
+- **Spotify Web Playback SDK** — in-browser Premium audio playback
+
+---
+
+## 📦 Installation
+
+### Prerequisites
 - Python 3.9+
-- Node.js & `npm`
-- A Spotify Premium Account
-- Spotify Developer Credentials
+- Node.js 18+
+- A Spotify Developer app with a registered redirect URI
 
-### 2. Backend Setup
+### 1. Spotify App Setup
+
+1. Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
+2. Create an app and add `http://localhost:8000/callback` as a Redirect URI
+3. Copy your **Client ID** and **Client Secret**
+
+### 2. Backend
+
 ```bash
 cd backend
-python -m venv venv
-.\venv\Scripts\Activate
-pip install -r requirements.txt
-```
-**Create your `.env` File** inside `backend/`:
-```env
-SPOTIFY_CLIENT_ID=your_client_id
-SPOTIFY_CLIENT_SECRET=your_client_secret
-REDIRECT_URI=http://127.0.0.1:8000/callback
-FRONTEND_URL=http://localhost:5173
-```
-**Start the Server**:
-```bash
-uvicorn main:app --reload
-```
-*(Runs on `http://127.0.0.1:8000`)*
 
-### 3. Frontend Setup
-Open a new terminal window:
+# Create and activate virtual environment
+python -m venv venv
+venv\Scripts\activate        # Windows
+# source venv/bin/activate   # macOS / Linux
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Create environment file
+cp .env.example .env
+# Fill in SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, REDIRECT_URI, FRONTEND_URL
+
+# Start the server
+uvicorn main:app --reload
+# Runs at http://localhost:8000
+```
+
+### 3. Frontend
+
 ```bash
 cd frontend
+
 npm install
 npm run dev
+# Runs at http://localhost:5173
 ```
-*(Runs on `http://localhost:5173`)*
 
-Navigate to `http://localhost:5173` in your browser. Enjoy **Beatify**!
+---
+
+## ▶️ Usage
+
+1. **Login** — open `http://localhost:5173`, click **Connect with Spotify**, and authorise via the Spotify OAuth flow
+2. **Configure** — choose difficulty, toggle timer and answer categories, set round count, and pick a playlist from your library
+3. **Play** — a short snippet streams automatically; type song name, artist, album, and/or year before the timer expires, then press **Submit Guess**
+4. **Review** — the round result screen reveals the correct answer, your points, and plays a sound effect scaled to your score
+5. **End screen** — after the final round, view your total score, accuracy per category, reflex times, and scrollable match history; replay with the same settings or return to configure
+
+---
+
+## 🔐 Important Notes
+
+- **Spotify Premium is required** for audio playback via the Web Playback SDK. Free accounts cannot stream tracks in-browser.
+- **OAuth scopes requested**: `user-read-private`, `user-read-email`, `playlist-read-private`, `playlist-read-collaborative`, `streaming`, `user-read-playback-state`, `user-modify-playback-state`
+- **Game state is in-memory** — restarting the backend server clears all active game sessions
+- **Token key collision** — game state is keyed by the last 10 characters of the access token; in a multi-user deployment this is not safe. Suitable for local/personal use only in its current form
+- The frontend dev server and backend must both be running simultaneously; the Spotify redirect URI must match exactly what is registered in your Developer Dashboard
+
+---
+
+## 📁 Project Structure
+
+```
+Beatify/
+├── backend/
+│   ├── main.py          # FastAPI app, CORS config, router registration
+│   ├── auth.py          # /login, /callback, /refresh endpoints
+│   ├── game.py          # /playlists, /start_game, /submit_guess, /next_round
+│   ├── models.py        # Pydantic models (Track, GameState, GuessSubmission)
+│   ├── requirements.txt
+│   └── .env.example
+│
+├── frontend/
+│   ├── public/
+│   │   ├── favicon.svg       # Custom waveform logo
+│   │   └── audio/            # SFX files (bell chime, violin win, game fail, …)
+│   └── src/
+│       ├── pages/
+│       │   └── Index.tsx     # Root orchestrator — phase state machine, SDK init, playback
+│       ├── components/game/
+│       │   ├── LoginScreen.tsx
+│       │   ├── GameSettings.tsx
+│       │   ├── GamePlay.tsx
+│       │   ├── RoundResult.tsx
+│       │   ├── GameOver.tsx
+│       │   ├── Rulebook.tsx
+│       │   └── ThemeToggle.tsx
+│       ├── hooks/
+│       │   └── use-theme.ts  # Dark/light mode with localStorage persistence
+│       └── api.js            # Axios instance, interceptor, all API calls
+│
+└── pics/                     # UI screenshots (dark + light variants)
+```
+
+---
+
+## 📈 Future Improvements
+
+- **Persistent storage** — replace in-memory game state with a database (e.g. PostgreSQL) and a caching layer (e.g. Redis) for session management and leaderboard support
+- **Multiplayer** — shared game sessions with WebSocket synchronisation
+- **Leaderboards** — cross-session score history per user
+- **More hint types** — lyrics snippet, genre tag, decade hint
+
+---
+
+## 📄 License
+
+MIT License. See [LICENSE](LICENSE) for details.
+
+---
+
+## 🙌 Credits
+
+- [Spotify Web API](https://developer.spotify.com/documentation/web-api) — track data and OAuth
+- [Spotify Web Playback SDK](https://developer.spotify.com/documentation/web-playback-sdk) — in-browser audio
+- [rapidfuzz](https://github.com/maxbachmann/RapidFuzz) — fuzzy string matching
+- [shadcn/ui](https://ui.shadcn.com) — component library
+- [Lucide](https://lucide.dev) — icon set
