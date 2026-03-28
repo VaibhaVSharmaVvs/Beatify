@@ -12,10 +12,12 @@ interface GamePlayProps {
   hintMode: string;
   albumArt?: string;
   isPlaying: boolean;
+  currentStreak: number;
+  onGuessChange: (g: { song: string; artist: string; album: string; year: string }) => void;
   onSubmitGuess: (guess: { song: string; artist: string; album: string; year: string }) => void;
 }
 
-const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, categories, hintMode, albumArt, isPlaying, onSubmitGuess }: GamePlayProps) => {
+const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, categories, hintMode, albumArt, isPlaying, currentStreak, onGuessChange, onSubmitGuess }: GamePlayProps) => {
   const [song, setSong] = useState("");
   const [artist, setArtist] = useState("");
   const [album, setAlbum] = useState("");
@@ -30,11 +32,18 @@ const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, categorie
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmitGuess({ song, artist, album, year });
-    setSong("");
-    setArtist("");
-    setAlbum("");
-    setYear("");
+    const cleared = { song: '', artist: '', album: '', year: '' };
+    setSong('');
+    setArtist('');
+    setAlbum('');
+    setYear('');
+    onGuessChange(cleared);
   };
+
+  const updateSong = (v: string) => { setSong(v); onGuessChange({ song: v, artist, album, year }); };
+  const updateArtist = (v: string) => { setArtist(v); onGuessChange({ song, artist: v, album, year }); };
+  const updateAlbum = (v: string) => { setAlbum(v); onGuessChange({ song, artist, album: v, year }); };
+  const updateYear = (v: string) => { setYear(v); onGuessChange({ song, artist, album, year: v }); };
 
   const timerPercentage = timerEnabled ? (timeLeft / 30) * 100 : 100;
   const timerColor = timeLeft <= 3 ? "hsl(var(--game-error))" : timeLeft <= 7 ? "hsl(var(--game-warning))" : "hsl(var(--primary))";
@@ -58,6 +67,11 @@ const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, categorie
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Round</p>
               <p className="score-display text-2xl font-bold">{round}<span className="text-muted-foreground text-lg">/{totalRounds}</span></p>
             </div>
+            {currentStreak > 0 && (
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-orange-500/10 border border-orange-500/20 text-orange-400">
+                🔥{currentStreak}
+              </div>
+            )}
             {timerEnabled && (
               <div className="text-right">
                 <p className="text-xs text-muted-foreground uppercase tracking-wider">Time</p>
@@ -124,7 +138,7 @@ const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, categorie
               <input
                 type="text"
                 value={song}
-                onChange={(e) => setSong(e.target.value)}
+                onChange={(e) => updateSong(e.target.value)}
                 placeholder="What's playing?"
                 className="game-input text-lg"
                 autoFocus
@@ -137,7 +151,7 @@ const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, categorie
                   <input
                     type="text"
                     value={artist}
-                    onChange={(e) => setArtist(e.target.value)}
+                    onChange={(e) => updateArtist(e.target.value)}
                     placeholder="Who sings it?"
                     className="game-input"
                   />
@@ -149,7 +163,7 @@ const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, categorie
                   <input
                     type="text"
                     value={album}
-                    onChange={(e) => setAlbum(e.target.value)}
+                    onChange={(e) => updateAlbum(e.target.value)}
                     placeholder="Which album?"
                     className="game-input"
                   />
@@ -163,7 +177,7 @@ const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, categorie
                     min={1900}
                     max={new Date().getFullYear()}
                     value={year}
-                    onChange={(e) => setYear(e.target.value)}
+                    onChange={(e) => updateYear(e.target.value)}
                     placeholder="YYYY"
                     className="game-input"
                   />
