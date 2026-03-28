@@ -203,15 +203,19 @@ const Index = () => {
     if (timerRef.current) clearInterval(timerRef.current);
     if (playerRef.current) playerRef.current.pause();
     
+    // Evaluate pure response time
+    const responseTime = settings.timerEnabled ? settings.timerSeconds - timeLeft : null;
+    
     submitGuess({
       guess_name: guess.song,
       guess_artist: guess.artist,
       guess_album: guess.album,
       guess_year: guess.year
     }, token).then(res => {
-      setRoundResult(res.data);
+      const enrichedResult = { ...res.data, response_time: responseTime };
+      setRoundResult(enrichedResult);
       setScore(res.data.total_score);
-      setHistory(prev => [...prev, res.data]);
+      setHistory(prev => [...prev, enrichedResult]);
       setPhase('result');
     }).catch(err => toast.error("Failed to submit guess"));
   };
@@ -280,6 +284,7 @@ const Index = () => {
         <GameOver
           totalScore={score}
           totalRounds={settings.rounds}
+          categories={settings.categories}
           history={history}
           isStartingGame={isStartingGame}
           onPlayAgain={() => {

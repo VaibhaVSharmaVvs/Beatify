@@ -141,6 +141,13 @@ def submit_guess(guess: GuessSubmission, authorization: str = Header(None)):
     points = 0
     THRESHOLD = 90
     
+    field_scores = {
+        "name": False,
+        "artist": False,
+        "album": False,
+        "year": False
+    }
+    
     def sanitize(text: str) -> str:
         # Remove anything in parenthesis or brackets
         cleaned = re.sub(r'\(.*?\)|\[.*?\]', '', text)
@@ -162,6 +169,7 @@ def submit_guess(guess: GuessSubmission, authorization: str = Header(None)):
     name_score = fuzz.token_set_ratio(clean_guess_name, clean_correct_name)
     if name_score >= THRESHOLD:
         points += 5
+        field_scores["name"] = True
     
     # Helper to check if an artist exists in the user's input with typo tolerance
     artist_guesses = [sanitize(g) for g in guess.guess_artist.split(',')]
@@ -183,6 +191,7 @@ def submit_guess(guess: GuessSubmission, authorization: str = Header(None)):
         # Award 2 points for the Primary Artist
         if check_artist_match(primary_artist["name"]):
             points += 2
+            field_scores["artist"] = True
             
         # Award 1 point for EVERY additional Feature Artist
         features = current_track["artists"][1:]
@@ -199,14 +208,17 @@ def submit_guess(guess: GuessSubmission, authorization: str = Header(None)):
         
         if album_score >= THRESHOLD:
             points += 3
+            field_scores["album"] = True
         elif is_single and clean_guess_album in ["single", "no album", "none", "n a", "single release"]:
             points += 3
+            field_scores["album"] = True
 
     # Check Year
     if game["settings"]["year"]:
         correct_year = str(current_track["album"].get("release_date", ""))[:4]
         if clean_guess_year and clean_guess_year == sanitize(correct_year):
             points += 2
+            field_scores["year"] = True
         
     game["score"] += points
     
@@ -218,7 +230,8 @@ def submit_guess(guess: GuessSubmission, authorization: str = Header(None)):
         "image_url": current_track["album"]["images"][0]["url"] if current_track["album"]["images"] else None,
         "points_earned": points,
         "total_score": game["score"],
-        "max_score_per_round": game["max_score_per_round"]
+        "max_score_per_round": game["max_score_per_round"],
+        "field_scores": field_scores
     }
     
     game["history"].append(result)
