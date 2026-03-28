@@ -58,6 +58,11 @@ const Rulebook = () => {
                     <span className="font-semibold">💿 Singles & No Albums:</span> If a song doesn't belong to a larger album, simply type <span className="font-bold">"single", "none", or the exact song name again</span> to natively earn all 3 album points!
                   </p>
                 </div>
+                <div className="rounded-xl bg-muted/50 border border-border/40 p-3">
+                  <p className="text-xs text-muted-foreground">
+                    <span className="font-semibold text-foreground">🎵 Requires Spotify Premium</span> — Full song playback via the Spotify Web Playback SDK requires an active Premium subscription.
+                  </p>
+                </div>
               </section>
 
               {/* Scoring */}
@@ -85,6 +90,22 @@ const Rulebook = () => {
                 <div className="rounded-xl bg-primary/10 border border-primary/20 p-3">
                   <p className="text-xs text-primary/90">
                     <span className="font-semibold">✨ Featured Artist Bonus:</span> Earn a stacking <span className="font-bold">+1 pt</span> for every additional featured artist you correctly guess on a single track!
+                  </p>
+                </div>
+              </section>
+
+              {/* Streaks */}
+              <section className="space-y-2">
+                <div className="flex items-center gap-2 text-primary">
+                  <Trophy className="w-4 h-4" />
+                  <h3 className="text-sm font-semibold uppercase tracking-wider">Streaks</h3>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Score a <span className="text-foreground font-medium">perfect round</span> (all categories correct) to start a streak. Your streak counter is shown with 🔥 in the top bar — keep it alive to flex your music knowledge!
+                </p>
+                <div className="rounded-xl bg-orange-500/10 border border-orange-500/20 p-3">
+                  <p className="text-xs text-orange-400">
+                    <span className="font-semibold">🔥 Streak resets</span> the moment you miss any category or skip a round. Partial answers don't count!
                   </p>
                 </div>
               </section>
@@ -149,6 +170,27 @@ const Rulebook = () => {
                   💡 <span className="font-medium text-primary">Pro tip:</span> Even partial guesses score — fill in whatever you know before time runs out.
                 </p>
               </div>
+
+              {/* Fuzzy Matching */}
+              <section className="space-y-2">
+                <div className="flex items-center gap-2 text-primary">
+                  <Pause className="w-4 h-4" />
+                  <h3 className="text-sm font-semibold uppercase tracking-wider">Typo Tolerance</h3>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Answers are matched using <span className="text-foreground font-medium">fuzzy scoring</span> — minor spelling mistakes and small typos are forgiven. You won't lose points for "Beeber" instead of "Bieber".
+                </p>
+                <ul className="space-y-1.5 text-sm text-muted-foreground">
+                  <li className="flex gap-2">
+                    <span className="text-primary">•</span>
+                    <span>Words inside <span className="text-foreground font-medium">parentheses or brackets</span> are ignored — e.g. "Blinding Lights (Remix)" matches "Blinding Lights".</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-primary">•</span>
+                    <span>For <span className="text-foreground font-medium">multi-artist tracks</span>, separate names with a comma: <span className="font-mono text-foreground">Drake, 21 Savage</span>.</span>
+                  </li>
+                </ul>
+              </section>
             </div>
           </div>
         </div>
