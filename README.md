@@ -49,6 +49,14 @@ The backend fetches tracks on demand from Spotify's API, scores your answers ser
 
 ---
 
+## 💡 Why Beatify?
+
+Most music guessing games use static, curated datasets — the same songs recycled across every session. Beatify is different: it plugs directly into your Spotify library, so every game reflects your actual taste.
+
+If you've built a gym playlist, a road trip mix, or a decade-specific deep-cut collection, Beatify can immediately turn it into a trivia challenge. The difficulty is inherently personal — you're being tested on music *you* chose, which makes near-misses more frustrating and perfect rounds genuinely impressive.
+
+---
+
 ## 🎮 Features
 
 ### Core Gameplay
@@ -120,6 +128,25 @@ User
 ```
 
 Game state is held in memory server-side, keyed by the last 10 characters of the access token. Track metadata and URIs come from the Spotify Web API; audio playback is handled entirely client-side by the SDK.
+
+---
+
+## 🔧 Engineering Challenges
+
+**Timer synchronisation with SDK latency**
+The Spotify Web Playback SDK has a variable delay between the `playTrack` API call and the moment audio actually reaches the speaker. Starting the guess timer on the API call would consistently cheat players out of time. The fix: defer the timer start until `player_state_changed` fires with `!state.paused && state.position > 0`, guaranteeing the countdown only begins when sound is audible.
+
+**Fuzzy matching across noisy real-world input**
+Freeform text fields produce inconsistent guesses — extra words, punctuation, alternate spellings, parenthetical tags (`(Remix)`, `[Deluxe Edition]`). A two-pass strategy handles this: first strip brackets and collapse whitespace, then apply `token_set_ratio` for song/album fields and a combined global + per-chunk `ratio` check for multi-artist comma-separated input.
+
+**Scalable random sampling on large playlists**
+Fetching all tracks from a 600-track playlist to sample 10 is wasteful. Instead, the backend computes random absolute indices upfront, groups them by 50-track page offset, and issues only the minimal number of Spotify API calls needed — typically 1–3 requests regardless of playlist size.
+
+**Transparent token refresh without user disruption**
+SPAs lose state on refresh, and Spotify access tokens expire after an hour. A global Axios response interceptor catches 401s, silently exchanges the stored refresh token for a new access token, patches the original failed request, and retries — without the user seeing an error or being logged out.
+
+**Flash of wrong theme on load**
+Applying a CSS class via React state causes a brief flash of the default theme before hydration completes. The fix: an inline `<script>` in `index.html` reads `localStorage` and sets the correct class on `<html>` synchronously before any React code runs.
 
 ---
 
