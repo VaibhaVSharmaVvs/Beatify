@@ -13,36 +13,84 @@ const ThemeToggle = ({ theme, onToggle }: ThemeToggleProps) => {
       onClick={onToggle}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       title={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      className="
-        fixed top-5 right-5 z-50
-        w-10 h-10 rounded-full
-        flex items-center justify-center
-        border border-border/60
-        bg-card/80 backdrop-blur-md
-        text-muted-foreground hover:text-foreground
-        hover:border-primary/40 hover:bg-card
-        shadow-md hover:shadow-lg hover:shadow-primary/10
-        transition-all duration-300
-        group
-      "
-      style={{ transition: "background-color 0.35s, border-color 0.35s, box-shadow 0.35s, color 0.35s" }}
+      style={{
+        position: "fixed",
+        top: "20px",
+        right: "20px",
+        zIndex: 50,
+        display: "flex",
+        alignItems: "center",
+        width: "72px",
+        height: "36px",
+        borderRadius: "999px",
+        padding: "4px",
+        cursor: "pointer",
+        border: "1px solid hsl(var(--border))",
+        background: isDark
+          ? "hsl(var(--card))"
+          : "hsl(var(--secondary))",
+        boxShadow: isDark
+          ? "0 2px 12px hsl(0 0% 0% / 0.4), inset 0 1px 2px hsl(0 0% 0% / 0.3)"
+          : "0 2px 12px hsl(var(--primary) / 0.15), inset 0 1px 2px hsl(0 0% 0% / 0.06)",
+        transition: "background 0.35s, border-color 0.35s, box-shadow 0.35s",
+        outline: "none",
+      }}
     >
-      {/* Sun icon (shown in dark mode — click to go light) */}
-      <Sun
-        className="w-4 h-4 absolute"
+      {/* Sun icon — left side */}
+      <span
         style={{
-          opacity: isDark ? 1 : 0,
-          transform: isDark ? "rotate(0deg) scale(1)" : "rotate(90deg) scale(0)",
-          transition: "opacity 0.3s, transform 0.4s cubic-bezier(0.4,0,0.2,1)",
+          position: "absolute",
+          left: "11px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: isDark
+            ? "hsl(var(--muted-foreground))"
+            : "hsl(var(--primary-foreground))",
+          transition: "color 0.35s, opacity 0.35s",
+          opacity: isDark ? 0.45 : 1,
+          zIndex: 3,
+          pointerEvents: "none",
         }}
-      />
-      {/* Moon icon (shown in light mode — click to go dark) */}
-      <Moon
-        className="w-4 h-4 absolute"
+      >
+        <Sun size={14} strokeWidth={2} />
+      </span>
+
+      {/* Moon icon — right side */}
+      <span
         style={{
-          opacity: isDark ? 0 : 1,
-          transform: isDark ? "rotate(-90deg) scale(0)" : "rotate(0deg) scale(1)",
-          transition: "opacity 0.3s, transform 0.4s cubic-bezier(0.4,0,0.2,1)",
+          position: "absolute",
+          right: "11px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: isDark
+            ? "hsl(var(--primary-foreground))"
+            : "hsl(var(--muted-foreground))",
+          transition: "color 0.35s, opacity 0.35s",
+          opacity: isDark ? 1 : 0.45,
+          zIndex: 3,
+          pointerEvents: "none",
+        }}
+      >
+        <Moon size={14} strokeWidth={2} />
+      </span>
+
+      {/* Sliding knob */}
+      <span
+        style={{
+          position: "absolute",
+          top: "3px",
+          left: isDark ? "calc(100% - 31px)" : "3px",
+          width: "28px",
+          height: "28px",
+          borderRadius: "50%",
+          background: "hsl(var(--primary))",
+          boxShadow: isDark
+            ? "0 2px 8px hsl(var(--primary) / 0.45)"
+            : "0 2px 8px hsl(var(--primary) / 0.45)",
+          transition: "left 0.35s cubic-bezier(0.4, 0, 0.2, 1), background 0.35s, box-shadow 0.35s",
+          zIndex: 2,
         }}
       />
     </button>

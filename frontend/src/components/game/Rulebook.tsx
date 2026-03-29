@@ -143,7 +143,7 @@ const Rulebook = () => {
                 <ul className="space-y-1.5 text-sm text-muted-foreground">
                   <li className="flex gap-2">
                     <span className="text-primary">•</span>
-                    <span><span className="text-foreground font-medium">Rounds</span> — choose 1 to 20 rounds per game.</span>
+                    <span><span className="text-foreground font-medium">Rounds</span> — choose 1 to 20 rounds per game. Note: If a playlist has fewer tracks than the selected rounds, the game will naturally cap at the available number of songs.</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="text-primary">•</span>

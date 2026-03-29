@@ -261,19 +261,19 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
             </div>
             <div className="grid grid-cols-2 gap-4">
               <label className="flex items-center gap-2 cursor-pointer opacity-70">
-                <input type="checkbox" checked readOnly className="appearance-none w-4 h-4 rounded border border-border bg-black checked:bg-primary checked:border-primary relative after:absolute after:hidden checked:after:block after:left-[4px] after:top-[1px] after:w-[5px] after:h-[10px] after:border-r-2 after:border-b-2 after:border-background after:rotate-45 cursor-not-allowed shrink-0" />
+                <input type="checkbox" checked readOnly className="appearance-none w-4 h-4 rounded border border-border bg-background checked:bg-primary checked:border-primary relative after:absolute after:hidden checked:after:block after:left-[4px] after:top-[1px] after:w-[5px] after:h-[10px] after:border-r-2 after:border-b-2 after:border-background after:rotate-45 cursor-not-allowed shrink-0" />
                 <span className="text-sm">Song Name (5 pts)</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={categories.artist} onChange={e => setCategories({...categories, artist: e.target.checked})} className="appearance-none w-4 h-4 rounded border border-muted-foreground bg-black checked:bg-primary checked:border-primary relative after:absolute after:hidden checked:after:block after:left-[4px] after:top-[1px] after:w-[5px] after:h-[10px] after:border-r-2 after:border-b-2 after:border-background after:rotate-45 cursor-pointer shrink-0 transition-colors" />
+                <input type="checkbox" checked={categories.artist} onChange={e => setCategories({...categories, artist: e.target.checked})} className="appearance-none w-4 h-4 rounded border border-muted-foreground bg-background checked:bg-primary checked:border-primary relative after:absolute after:hidden checked:after:block after:left-[4px] after:top-[1px] after:w-[5px] after:h-[10px] after:border-r-2 after:border-b-2 after:border-background after:rotate-45 cursor-pointer shrink-0 transition-colors" />
                 <span className="text-sm">Artist (2 pts)</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={categories.album} onChange={e => setCategories({...categories, album: e.target.checked})} className="appearance-none w-4 h-4 rounded border border-muted-foreground bg-black checked:bg-primary checked:border-primary relative after:absolute after:hidden checked:after:block after:left-[4px] after:top-[1px] after:w-[5px] after:h-[10px] after:border-r-2 after:border-b-2 after:border-background after:rotate-45 cursor-pointer shrink-0 transition-colors" />
+                <input type="checkbox" checked={categories.album} onChange={e => setCategories({...categories, album: e.target.checked})} className="appearance-none w-4 h-4 rounded border border-muted-foreground bg-background checked:bg-primary checked:border-primary relative after:absolute after:hidden checked:after:block after:left-[4px] after:top-[1px] after:w-[5px] after:h-[10px] after:border-r-2 after:border-b-2 after:border-background after:rotate-45 cursor-pointer shrink-0 transition-colors" />
                 <span className="text-sm">Album (3 pts)</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={categories.year} onChange={e => setCategories({...categories, year: e.target.checked})} className="appearance-none w-4 h-4 rounded border border-muted-foreground bg-black checked:bg-primary checked:border-primary relative after:absolute after:hidden checked:after:block after:left-[4px] after:top-[1px] after:w-[5px] after:h-[10px] after:border-r-2 after:border-b-2 after:border-background after:rotate-45 cursor-pointer shrink-0 transition-colors" />
+                <input type="checkbox" checked={categories.year} onChange={e => setCategories({...categories, year: e.target.checked})} className="appearance-none w-4 h-4 rounded border border-muted-foreground bg-background checked:bg-primary checked:border-primary relative after:absolute after:hidden checked:after:block after:left-[4px] after:top-[1px] after:w-[5px] after:h-[10px] after:border-r-2 after:border-b-2 after:border-background after:rotate-45 cursor-pointer shrink-0 transition-colors" />
                 <span className="text-sm">Release Year (2 pts)</span>
               </label>
             </div>
