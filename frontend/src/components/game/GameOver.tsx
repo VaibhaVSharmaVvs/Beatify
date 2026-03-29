@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { RotateCcw, Trophy, Loader2, Gauge, Flame, Target } from "lucide-react";
+import { useEffect } from "react";
 
 interface GameOverProps {
   totalScore: number;
@@ -9,9 +10,10 @@ interface GameOverProps {
   isStartingGame: boolean;
   onPlayAgain: () => void;
   onChangeSettings: () => void;
+  onSessionSave?: (maxStreak: number) => void;
 }
 
-const GameOver = ({ totalScore, totalRounds, categories, history, isStartingGame, onPlayAgain, onChangeSettings }: GameOverProps) => {
+const GameOver = ({ totalScore, totalRounds, categories, history, isStartingGame, onPlayAgain, onChangeSettings, onSessionSave }: GameOverProps) => {
   let maxStreak = 0;
   let currentStreak = 0;
   let totalResponseTime = 0;
@@ -46,6 +48,12 @@ const GameOver = ({ totalScore, totalRounds, categories, history, isStartingGame
   const avgTime = validResponseCount > 0 ? (totalResponseTime / validResponseCount).toFixed(1) : "-";
   const bestTime = fastestTime !== 999 ? `${fastestTime.toFixed(1)}s` : "-";
   const isPerfectGame = maxStreak === totalRounds && totalRounds > 0;
+
+  // Fire-and-forget: persist session to Supabase once on mount
+  useEffect(() => {
+    if (onSessionSave) onSessionSave(maxStreak);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="min-h-screen px-4 py-8 flex flex-col items-center justify-start overflow-y-auto">

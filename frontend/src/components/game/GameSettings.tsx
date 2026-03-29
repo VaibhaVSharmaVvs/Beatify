@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import Rulebook from "./Rulebook";
+import { StatsDashboardLeft, StatsDashboardRight } from "./StatsDashboard";
+import { useStats } from "@/hooks/use-stats";
 
 interface Playlist {
   id: string;
@@ -21,6 +23,7 @@ interface GameSettingsProps {
     timerSeconds: number;
     rounds: number;
     playlistId: string;
+    playlistName: string;
     categories: {
       artist: boolean;
       album: boolean;
@@ -31,6 +34,7 @@ interface GameSettingsProps {
   isLoadingPlaylists?: boolean;
   isStartingGame?: boolean;
   isSpotifyConnected?: boolean;
+  spotifyId?: string | null;
 }
 
 const difficulties = [
@@ -40,7 +44,7 @@ const difficulties = [
   { id: "impossible", label: "Virtuoso", seconds: "1s", color: "text-[hsl(var(--game-error))]" },
 ];
 
-const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isStartingGame, isSpotifyConnected }: GameSettingsProps) => {
+const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isStartingGame, isSpotifyConnected, spotifyId }: GameSettingsProps) => {
   const [difficulty, setDifficulty] = useState("easy");
   const [timerEnabled, setTimerEnabled] = useState(true);
   const [timerSeconds, setTimerSeconds] = useState(10);
@@ -51,20 +55,34 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
 
   const handleStart = () => {
     if (!selectedPlaylist) return;
+    const pl = playlists.find(p => p.id === selectedPlaylist);
     onStartGame({
       difficulty,
       timerEnabled,
       timerSeconds,
       rounds,
       playlistId: selectedPlaylist,
+      playlistName: pl?.name || 'Unknown Playlist',
       categories,
       hintMode,
     });
   };
 
+  const { stats, loading: statsLoading } = useStats(spotifyId ?? null);
+
   return (
     <div className="min-h-screen px-4 py-8">
-      <div className="max-w-2xl mx-auto space-y-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="xl:grid xl:grid-cols-[280px_1fr_280px] xl:gap-6 items-start">
+
+          {/* Left Stats Panel */}
+          <div className="hidden xl:block sticky top-8 space-y-4">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground px-1">Leaderboards</p>
+            <StatsDashboardLeft stats={stats} loading={statsLoading} />
+          </div>
+
+          {/* Centre — existing settings form */}
+          <div className="max-w-2xl mx-auto xl:mx-0 space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between fade-in">
           <div>
@@ -342,9 +360,18 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
               </span>
             ) : "Start Game"}
           </Button>
-        </div>
-      </div>
-      
+        </div>{/* /slide-up */}
+          </div>{/* /centre */}
+
+          {/* Right Stats Panel */}
+          <div className="hidden xl:block sticky top-8 space-y-4">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground px-1">Your Stats</p>
+            <StatsDashboardRight stats={stats} loading={statsLoading} />
+          </div>
+
+        </div>{/* /grid */}
+      </div>{/* /max-w */}
+
       {/* Rulebook Hover Widget */}
       <div className="fixed bottom-6 left-6 z-40">
         <Rulebook />

@@ -4,7 +4,8 @@ from typing import List, Optional
 import requests
 from rapidfuzz import fuzz
 import re
-from models import Track, GameState, GuessSubmission
+import db as db_module
+from models import Track, GameState, GuessSubmission, SaveSessionRequest
 
 router = APIRouter()
 
@@ -246,3 +247,22 @@ def next_round(authorization: str = Header(None)):
     token = authorization.split(" ")[1]
     game_id = token[-10:]
     return get_round_data(game_id)
+
+
+@router.post("/save_session")
+def save_session(data: SaveSessionRequest, authorization: str = Header(None)):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Missing token")
+    try:
+        session_id = db_module.save_game_session(data.spotify_id, {
+            "total_rounds": data.total_rounds,
+            "total_score": data.total_score,
+            "max_score": data.max_score,
+            "difficulty": data.difficulty,
+            "playlist_name": data.playlist_name,
+        })
+        db_module.save_round_results(session_id, data.spotify_id, [r.model_dump() for r in data.rounds])
+        return {"ok": True}
+    except Exception as e:
+        print(f"[save_session] error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

@@ -96,3 +96,7 @@ export const playTrack = (token, deviceId, uri) => {
         }
     });
 };
+
+export const saveSession = (payload) => {
+    return axios.post(`${BASE_URL}/save_session`, payload, getAuthHeaders());
+};
