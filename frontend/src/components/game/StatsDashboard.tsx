@@ -34,7 +34,7 @@ const AccuracyTable = ({ title, icon, rows, loading, nameLabel = "Name" }: Accur
     </div>
 
     {/* Header */}
-    <div className="grid grid-cols-[1fr_auto_auto] gap-x-3 text-[10px] text-muted-foreground uppercase tracking-wider border-b border-border/40 pb-1">
+    <div className="grid grid-cols-[1fr_50px_60px] gap-x-4 text-[10px] text-muted-foreground uppercase tracking-wider border-b border-border/40 pb-1">
       <span>{nameLabel}</span>
       <span className="text-center">Rounds</span>
       <span className="text-right">Accuracy</span>
@@ -45,14 +45,14 @@ const AccuracyTable = ({ title, icon, rows, loading, nameLabel = "Name" }: Accur
         ? Array.from({ length: 3 }).map((_, i) => <SkeletonRow key={i} cols={3} />)
         : rows.length === 0
         ? (
-          <div className="grid grid-cols-[1fr_auto_auto] gap-x-3 text-xs text-muted-foreground py-0.5">
+          <div className="grid grid-cols-[1fr_50px_60px] gap-x-4 text-xs text-muted-foreground py-0.5">
             <span className="truncate text-muted-foreground/50">—</span>
             <span className="text-center text-muted-foreground/50">—</span>
             <span className="text-right text-muted-foreground/50">—</span>
           </div>
         )
         : rows.map((row, i) => (
-            <div key={i} className="grid grid-cols-[1fr_auto_auto] gap-x-3 items-center text-xs">
+            <div key={i} className="grid grid-cols-[1fr_50px_60px] gap-x-4 items-center text-xs">
               <span className="truncate font-medium" title={row.name}>{row.name}</span>
               <span className="text-center text-muted-foreground tabular-nums">{row.rounds}</span>
               <span className={`text-right font-semibold tabular-nums score-display ${accColor(row.accuracy)}`}>
