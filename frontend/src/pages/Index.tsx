@@ -83,6 +83,14 @@ const Index = () => {
       setSpotifyId(sid || localStorage.getItem('spotify_id'));
       setPhase("settings");
     } else if (localStorage.getItem('access_token')) {
+      if (!localStorage.getItem('spotify_id')) {
+        // User has an old session without a bound spotify_id.
+        // Force them to re-authenticate to populate the players table!
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        setPhase("login");
+        return;
+      }
       const storedToken = localStorage.getItem('access_token');
       setToken(storedToken);
       setSpotifyId(localStorage.getItem('spotify_id'));
