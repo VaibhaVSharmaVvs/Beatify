@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import Rulebook from "./Rulebook";
+import { StatsDashboardLeft, StatsDashboardRight } from "./StatsDashboard";
+import { useStats } from "@/hooks/use-stats";
 
 interface Playlist {
   id: string;
@@ -21,6 +23,7 @@ interface GameSettingsProps {
     timerSeconds: number;
     rounds: number;
     playlistId: string;
+    playlistName: string;
     categories: {
       artist: boolean;
       album: boolean;
@@ -31,6 +34,7 @@ interface GameSettingsProps {
   isLoadingPlaylists?: boolean;
   isStartingGame?: boolean;
   isSpotifyConnected?: boolean;
+  spotifyId?: string | null;
 }
 
 const difficulties = [
@@ -40,7 +44,7 @@ const difficulties = [
   { id: "impossible", label: "Virtuoso", seconds: "1s", color: "text-[hsl(var(--game-error))]" },
 ];
 
-const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isStartingGame, isSpotifyConnected }: GameSettingsProps) => {
+const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isStartingGame, isSpotifyConnected, spotifyId }: GameSettingsProps) => {
   const [difficulty, setDifficulty] = useState("easy");
   const [timerEnabled, setTimerEnabled] = useState(true);
   const [timerSeconds, setTimerSeconds] = useState(10);
@@ -51,53 +55,78 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
 
   const handleStart = () => {
     if (!selectedPlaylist) return;
+    const pl = playlists.find(p => p.id === selectedPlaylist);
     onStartGame({
       difficulty,
       timerEnabled,
       timerSeconds,
       rounds,
       playlistId: selectedPlaylist,
+      playlistName: pl?.name || 'Unknown Playlist',
       categories,
       hintMode,
     });
   };
 
+  const { stats, loading: statsLoading } = useStats(spotifyId ?? null);
+
   return (
     <div className="min-h-screen px-4 py-8">
-      <div className="max-w-2xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex items-center justify-between fade-in">
-          <div>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center border border-primary/30 shrink-0">
-                <img src="/favicon.svg" alt="Beatify Logo" className="w-6 h-6" />
+      <div className="max-w-7xl mx-auto">
+        {/* Header Row (aligned above center column) */}
+        <div className="xl:grid xl:grid-cols-[280px_1fr_280px] xl:gap-6 mb-6">
+          <div className="hidden xl:flex items-end pb-1 relative">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground px-1 absolute bottom-0">Leaderboards</p>
+          </div>
+          
+          <div className="max-w-2xl mx-auto xl:mx-0 w-full fade-in">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center border border-primary/30 shrink-0">
+                    <img src="/favicon.svg" alt="Beatify Logo" className="w-6 h-6" />
+                  </div>
+                  <h1 className="text-3xl font-bold tracking-tight">Beatify <span className="text-muted-foreground font-normal">| Guess The Song</span></h1>
+                </div>
+                <div className="flex items-center gap-3 mt-3">
+                  <span
+                    className="game-badge"
+                    style={{
+                      color: isSpotifyConnected ? undefined : 'hsl(var(--muted-foreground))',
+                      borderColor: isSpotifyConnected ? undefined : 'hsl(var(--border))'
+                    }}
+                  >
+                    <span
+                      style={{
+                        display: 'inline-block',
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        backgroundColor: isSpotifyConnected ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
+                        marginRight: '6px',
+                        animation: isSpotifyConnected ? 'pulse 2s infinite' : 'none'
+                      }}
+                    />
+                    {isSpotifyConnected ? 'Online' : 'Offline'}
+                  </span>
+                </div>
               </div>
-              <h1 className="text-3xl font-bold tracking-tight">Beatify <span className="text-muted-foreground font-normal">| Guess The Song</span></h1>
-            </div>
-            <div className="flex items-center gap-3 mt-3">
-              <span
-                className="game-badge"
-                style={{
-                  color: isSpotifyConnected ? undefined : 'hsl(var(--muted-foreground))',
-                  borderColor: isSpotifyConnected ? undefined : 'hsl(var(--border))'
-                }}
-              >
-                <span
-                  style={{
-                    display: 'inline-block',
-                    width: '8px',
-                    height: '8px',
-                    borderRadius: '50%',
-                    backgroundColor: isSpotifyConnected ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
-                    marginRight: '6px',
-                    animation: isSpotifyConnected ? 'pulse 2s infinite' : 'none'
-                  }}
-                />
-                {isSpotifyConnected ? 'Online' : 'Offline'}
-              </span>
             </div>
           </div>
+          <div className="hidden xl:flex items-end pb-1 relative justify-end">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground px-1 absolute bottom-0 right-0">Your Stats</p>
+          </div>
         </div>
+
+        <div className="xl:grid xl:grid-cols-[280px_1fr_280px] xl:gap-6 items-start">
+
+          {/* Left Stats Panel */}
+          <div className="hidden xl:block sticky top-8">
+            <StatsDashboardLeft stats={stats} loading={statsLoading} />
+          </div>
+
+          {/* Centre — existing settings form */}
+          <div className="max-w-2xl mx-auto xl:mx-0 space-y-8">
 
         {/* Settings Card */}
         <div className="game-card slide-up" style={{ animationDelay: "0.1s" }}>
@@ -342,9 +371,17 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
               </span>
             ) : "Start Game"}
           </Button>
-        </div>
-      </div>
-      
+        </div>{/* /slide-up */}
+          </div>{/* /centre */}
+
+          {/* Right Stats Panel */}
+          <div className="hidden xl:block sticky top-8">
+            <StatsDashboardRight stats={stats} loading={statsLoading} />
+          </div>
+
+        </div>{/* /grid */}
+      </div>{/* /max-w */}
+
       {/* Rulebook Hover Widget */}
       <div className="fixed bottom-6 left-6 z-40">
         <Rulebook />

@@ -3,6 +3,7 @@ import requests
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import RedirectResponse
 from dotenv import load_dotenv
+import db as db_module
 
 load_dotenv()
 
@@ -45,9 +46,27 @@ def callback(code: str):
     token_data = response.json()
     access_token = token_data.get("access_token")
     refresh_token = token_data.get("refresh_token")
-    
-    # Redirect to frontend with tokens
-    return RedirectResponse(f"{FRONTEND_URL}/login?access_token={access_token}&refresh_token={refresh_token}")
+
+    # Fetch the Spotify user profile to get a stable user ID
+    spotify_id = ""
+    display_name = ""
+    try:
+        profile_res = requests.get(
+            "https://api.spotify.com/v1/me",
+            headers={"Authorization": f"Bearer {access_token}"}
+        )
+        if profile_res.status_code == 200:
+            profile = profile_res.json()
+            spotify_id = profile.get("id", "")
+            display_name = profile.get("display_name", "")
+            # Upsert into Supabase players table
+            db_module.upsert_player(spotify_id, display_name)
+    except Exception as e:
+        print(f"[Auth] Failed to upsert player: {e}")
+
+    return RedirectResponse(
+        f"{FRONTEND_URL}/login?access_token={access_token}&refresh_token={refresh_token}&spotify_id={spotify_id}"
+    )
 
 @router.get("/refresh")
 def refresh_token(refresh_token: str):

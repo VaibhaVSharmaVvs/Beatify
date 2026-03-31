@@ -6,7 +6,7 @@ import RoundResult from "@/components/game/RoundResult";
 import GameOver from "@/components/game/GameOver";
 import ThemeToggle from "@/components/game/ThemeToggle";
 import { useTheme } from "@/hooks/use-theme";
-import { getPlaylists, startGame, submitGuess, nextRound, playTrack } from "../api";
+import { getPlaylists, startGame, submitGuess, nextRound, playTrack, saveSession } from "../api";
 import { toast } from "sonner";
 
 type GamePhase = "login" | "settings" | "playing" | "result" | "gameover";
@@ -22,6 +22,7 @@ const Index = () => {
   const { theme, toggle } = useTheme();
   const [phase, setPhase] = useState<GamePhase>("login");
   const [token, setToken] = useState<string | null>(null);
+  const [spotifyId, setSpotifyId] = useState<string | null>(null);
   const [playlists, setPlaylists] = useState<any[]>([]);
   const [isLoadingPlaylists, setIsLoadingPlaylists] = useState(false);
   const [isStartingGame, setIsStartingGame] = useState(false);
@@ -39,6 +40,7 @@ const Index = () => {
     timerEnabled: true,
     timerSeconds: 10,
     rounds: 10,
+    playlistName: '',
     categories: {
       artist: true,
       album: true,
@@ -70,16 +72,28 @@ const Index = () => {
     const params = new URLSearchParams(window.location.search);
     const accessToken = params.get('access_token');
     const refreshToken = params.get('refresh_token');
+    const sid = params.get('spotify_id');
 
     if (accessToken) {
       localStorage.setItem('access_token', accessToken);
       if (refreshToken) localStorage.setItem('refresh_token', refreshToken);
+      if (sid) localStorage.setItem('spotify_id', sid);
       window.history.replaceState({}, document.title, window.location.pathname);
       setToken(accessToken);
+      setSpotifyId(sid || localStorage.getItem('spotify_id'));
       setPhase("settings");
     } else if (localStorage.getItem('access_token')) {
+      if (!localStorage.getItem('spotify_id')) {
+        // User has an old session without a bound spotify_id.
+        // Force them to re-authenticate to populate the players table!
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        setPhase("login");
+        return;
+      }
       const storedToken = localStorage.getItem('access_token');
       setToken(storedToken);
+      setSpotifyId(localStorage.getItem('spotify_id'));
       setPhase("settings");
     }
   }, []);
@@ -277,6 +291,7 @@ const Index = () => {
           isLoadingPlaylists={isLoadingPlaylists}
           isStartingGame={isStartingGame}
           isSpotifyConnected={isPlayerReady}
+          spotifyId={spotifyId}
         />
       )}
       {phase === "playing" && (
@@ -325,6 +340,32 @@ const Index = () => {
             setScore(0);
             setHistory([]);
             setPhase("settings");
+          }}
+          onSessionSave={(maxStreak: number) => {
+            const sid = spotifyId || localStorage.getItem('spotify_id');
+            if (!sid) return;
+            const rounds = history.map(h => ({
+              track_name: h.correct_name,
+              artist_name: (h.correct_artist || '').split(', ')[0],
+              album_name: h.correct_album,
+              release_year: h.correct_year,
+              points_earned: h.points_earned,
+              max_points: h.max_score_per_round,
+              name_correct: h.field_scores?.name ?? false,
+              artist_correct: h.field_scores?.artist ?? false,
+              album_correct: h.field_scores?.album ?? false,
+              year_correct: h.field_scores?.year ?? false,
+              response_time: h.response_time ?? null,
+            }));
+            saveSession({
+              spotify_id: sid,
+              playlist_name: settings.playlistName || 'Unknown Playlist',
+              difficulty: settings.difficulty,
+              total_rounds: history.length,
+              total_score: score,
+              max_score: history.length * (history[0]?.max_score_per_round ?? 10),
+              rounds,
+            }).catch(err => console.error('[saveSession]', err));
           }}
         />
       )}
