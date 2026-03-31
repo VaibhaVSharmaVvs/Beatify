@@ -113,8 +113,8 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
               </div>
             </div>
           </div>
-          <div className="hidden xl:flex items-end pb-1 relative">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground px-1 absolute bottom-0">Your Stats</p>
+          <div className="hidden xl:flex items-end pb-1 relative justify-end">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground px-1 absolute bottom-0 right-0">Your Stats</p>
           </div>
         </div>
 
