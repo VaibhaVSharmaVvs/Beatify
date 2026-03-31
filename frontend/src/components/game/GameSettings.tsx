@@ -73,49 +73,60 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
   return (
     <div className="min-h-screen px-4 py-8">
       <div className="max-w-7xl mx-auto">
+        {/* Header Row (aligned above center column) */}
+        <div className="xl:grid xl:grid-cols-[280px_1fr_280px] xl:gap-6 mb-6">
+          <div className="hidden xl:flex items-end pb-1 relative">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground px-1 absolute bottom-0">Leaderboards</p>
+          </div>
+          
+          <div className="max-w-2xl mx-auto xl:mx-0 w-full fade-in">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center border border-primary/30 shrink-0">
+                    <img src="/favicon.svg" alt="Beatify Logo" className="w-6 h-6" />
+                  </div>
+                  <h1 className="text-3xl font-bold tracking-tight">Beatify <span className="text-muted-foreground font-normal">| Guess The Song</span></h1>
+                </div>
+                <div className="flex items-center gap-3 mt-3">
+                  <span
+                    className="game-badge"
+                    style={{
+                      color: isSpotifyConnected ? undefined : 'hsl(var(--muted-foreground))',
+                      borderColor: isSpotifyConnected ? undefined : 'hsl(var(--border))'
+                    }}
+                  >
+                    <span
+                      style={{
+                        display: 'inline-block',
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        backgroundColor: isSpotifyConnected ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
+                        marginRight: '6px',
+                        animation: isSpotifyConnected ? 'pulse 2s infinite' : 'none'
+                      }}
+                    />
+                    {isSpotifyConnected ? 'Online' : 'Offline'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="hidden xl:flex items-end pb-1 relative">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground px-1 absolute bottom-0">Your Stats</p>
+          </div>
+        </div>
+
         <div className="xl:grid xl:grid-cols-[280px_1fr_280px] xl:gap-6 items-start">
 
           {/* Left Stats Panel */}
-          <div className="hidden xl:block sticky top-8 space-y-4">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground px-1">Leaderboards</p>
+          <div className="hidden xl:block sticky top-8">
             <StatsDashboardLeft stats={stats} loading={statsLoading} />
           </div>
 
           {/* Centre — existing settings form */}
           <div className="max-w-2xl mx-auto xl:mx-0 space-y-8">
-        {/* Header */}
-        <div className="flex items-center justify-between fade-in">
-          <div>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center border border-primary/30 shrink-0">
-                <img src="/favicon.svg" alt="Beatify Logo" className="w-6 h-6" />
-              </div>
-              <h1 className="text-3xl font-bold tracking-tight">Beatify <span className="text-muted-foreground font-normal">| Guess The Song</span></h1>
-            </div>
-            <div className="flex items-center gap-3 mt-3">
-              <span
-                className="game-badge"
-                style={{
-                  color: isSpotifyConnected ? undefined : 'hsl(var(--muted-foreground))',
-                  borderColor: isSpotifyConnected ? undefined : 'hsl(var(--border))'
-                }}
-              >
-                <span
-                  style={{
-                    display: 'inline-block',
-                    width: '8px',
-                    height: '8px',
-                    borderRadius: '50%',
-                    backgroundColor: isSpotifyConnected ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
-                    marginRight: '6px',
-                    animation: isSpotifyConnected ? 'pulse 2s infinite' : 'none'
-                  }}
-                />
-                {isSpotifyConnected ? 'Online' : 'Offline'}
-              </span>
-            </div>
-          </div>
-        </div>
 
         {/* Settings Card */}
         <div className="game-card slide-up" style={{ animationDelay: "0.1s" }}>
@@ -364,8 +375,7 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
           </div>{/* /centre */}
 
           {/* Right Stats Panel */}
-          <div className="hidden xl:block sticky top-8 space-y-4">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground px-1">Your Stats</p>
+          <div className="hidden xl:block sticky top-8">
             <StatsDashboardRight stats={stats} loading={statsLoading} />
           </div>
 
