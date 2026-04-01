@@ -99,6 +99,8 @@ If you've built a gym playlist, a road trip mix, or a decade-specific deep-cut c
 
 - **Dark / Light Mode** — Spotify-inspired colour palette; preference persisted in `localStorage` and applied before React hydrates (no flash)
 - **Persistent Auth** — access and refresh tokens stored in `localStorage`; a global Axios interceptor silently refreshes the access token on 401s
+- **Database Persistence** — game history securely logged to a Supabase PostgreSQL database via a backend `service_role` client, binding unique Spotify IDs to session histories flawlessly.
+- **Server-Side Analytics Aggregation** — a native Postgres RPC function aggregates thousands of rows instantly within the database engine, returning a finalized, mathematically exact stats payload locally to eliminate O(N) client-side calculation loads.
 - **Post-game Analytics** — average and fastest reflex time, per-category hit accuracy percentages, max streak, scrollable match history with album art and per-field result indicators
 - **Tiered Audio Feedback** — six distinct sound effects mapped to score percentage tiers on each round result screen
 - **Tiered Text Feedback** — randomised sarcastic / congratulatory message per score tier shown on the round result screen
@@ -106,28 +108,143 @@ If you've built a gym playlist, a road trip mix, or a decade-specific deep-cut c
 
 ---
 
-## 🧠 Architecture
+## 🧠 Architecture & Data Flow
 
-```
-User
- │
- ├─► React Frontend (Vite + TypeScript)
- │     ├─ OAuth redirect → Spotify Accounts
- │     ├─ Token stored in localStorage
- │     ├─ Axios (with 401 interceptor + auto-refresh)
- │     └─ Spotify Web Playback SDK (in-browser audio)
- │
- └─► FastAPI Backend
-       ├─ /login          → redirect to Spotify OAuth
-       ├─ /callback       → exchange code for tokens, redirect to frontend
-       ├─ /refresh        → refresh access token
-       ├─ /playlists      → proxy GET /me/playlists
-       ├─ /start_game     → random-sample tracks, initialise game state
-       ├─ /submit_guess   → fuzzy-score answer, return field breakdown
-       └─ /next_round     → advance game state, return next track URI
+### System Overview
+
+```mermaid
+graph TD
+    %% Client Tier
+    subgraph Client ["Client Tier (React / Vite)"]
+        UI["React UI Components<br/>(GameSettings, GamePlay)"]
+        API_JS["API Service (api.js)"]
+        HOOKS["Custom Hooks<br/>(use-stats)"]
+        PLAYER["Spotify Web Playback SDK"]
+    end
+
+    %% Server Tier
+    subgraph Server ["Server Tier (FastAPI)"]
+        MAIN["main.py (Uvicorn)"]
+        AUTH_ROUTER["auth.py (OAuth Routes)"]
+        GAME_ROUTER["game.py (Core Logic)"]
+        DB_SERVICE["db.py (Supabase Client)"]
+        MODELS["models.py (Pydantic Res/Req)"]
+        MEMORY["In-Memory Game State Dictionary"]
+    end
+
+    %% Database Tier
+    subgraph DB ["Database Tier (Supabase)"]
+        POSTGRES[("PostgreSQL")]
+        TABLES["Tables:<br/>players, game_sessions, round_results"]
+        RPC["RPC Function:<br/>get_player_stats()"]
+    end
+
+    %% Third-Party
+    subgraph External ["External APIs"]
+        SPOTIFY_API["Spotify Web API"]
+    end
+
+    %% Interactions
+    UI -->|HTTP Requests| API_JS
+    API_JS -->|REST calls| MAIN
+    HOOKS -->|Direct SQL / RPC calls| POSTGRES
+    
+    MAIN --> AUTH_ROUTER
+    MAIN --> GAME_ROUTER
+    
+    AUTH_ROUTER -->|OAuth flow & Profile fetch| SPOTIFY_API
+    AUTH_ROUTER -->|Upsert Player| DB_SERVICE
+    
+    GAME_ROUTER -->|Fetch Playlist & Tracks| SPOTIFY_API
+    GAME_ROUTER <-->|Read/Update| MEMORY
+    GAME_ROUTER -->|Validate Payloads| MODELS
+    GAME_ROUTER -->|Persist History| DB_SERVICE
+    
+    DB_SERVICE -->|Service Role DB Writes| POSTGRES
+    POSTGRES --- TABLES
+    POSTGRES --- RPC
+    
+    PLAYER -->|Stream Audio| SPOTIFY_API
 ```
 
-Game state is held in memory server-side, keyed by the last 10 characters of the access token. Track metadata and URIs come from the Spotify Web API; audio playback is handled entirely client-side by the SDK.
+### Component Interaction (User Request Sequence)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+    participant React as Frontend (React)
+    participant SDK as Spotify Player SDK
+    participant FastAPI as Backend (game.py)
+    participant Spotify as Spotify Web API
+    participant Supabase as Database
+
+    %% Start Game
+    User->>React: Clicks "Start Game" with Settings
+    React->>FastAPI: POST /start_game (Playlist ID)
+    FastAPI->>Spotify: GET /playlists/{id}/tracks
+    Spotify-->>FastAPI: Returns Track JSON
+    Note over FastAPI: Randomizes tracks & caches in game memory array
+    FastAPI-->>React: Returns 1st Round Track URI & Metadata
+
+    %% Play Audio
+    React->>SDK: playTrack(URI)
+    SDK->>Spotify: Streams Track Audio
+    Spotify-->>User: (Audio output to speakers)
+
+    %% Submit Guess
+    User->>React: Types guess & submits
+    React->>FastAPI: POST /submit_guess (guess payload)
+    Note over FastAPI: Fuzzy string matching against correct track
+    Note over FastAPI: Calculates points & updates game memory
+    FastAPI-->>React: Returns feedback (Correct/Wrong, Points)
+
+    %% End Game
+    User->>React: Completes final round
+    React->>FastAPI: POST /save_session (Session & Rounds)
+    FastAPI->>Supabase: DB Insert (game_sessions, round_results)
+    Supabase-->>FastAPI: OK
+    FastAPI-->>React: OK
+
+    %% Fetch Stats
+    React->>Supabase: RPC get_player_stats()
+    Supabase-->>React: Aggregated JSON Stats
+    React-->>User: Renders Dashboard
+```
+
+### Data Processing Flow
+
+```mermaid
+flowchart LR
+    %% Inputs
+    InputA[("Spotify Catalog Datastore")]
+    InputB["User Typing Guesses"]
+
+    %% Processing
+    ExtractTracks["Backend extracts active<br/>tracks from Playlist"]
+    StateBuilder["Backend builds in-memory<br/>Game Dictionary"]
+    Sanitize["String Sanitizer<br/>(Removes brackets, casing)"]
+    FuzzyMatch["Levenshtein Distance<br/>Fuzzy Matching"]
+    ComputeStats["FastAPI Scoring Engine"]
+
+    %% Outputs
+    OutputDashboard["React Stats Dashboard"]
+    OutputDB[("Supabase Storage<br/>(round_results)")]
+
+    %% Flow
+    InputA --> ExtractTracks
+    ExtractTracks --> StateBuilder
+    StateBuilder --> ComputeStats
+
+    InputB --> Sanitize
+    Sanitize --> FuzzyMatch
+    FuzzyMatch --> ComputeStats
+
+    ComputeStats -->|End of Match| OutputDB
+    OutputDB -->|RPC Aggregation| OutputDashboard
+```
+
+Game state is securely maintained in-memory server-side, tied to individual authentications, while long-term persistent gameplay history logic is delegated strictly to the PostgreSQL analytics engine via Remote Procedure Calls.
 
 ---
 
@@ -172,6 +289,14 @@ Applying a CSS class via React state causes a brief flash of the default theme b
 | Requests | Spotify Web API calls |
 | rapidfuzz | Fuzzy string matching for answer scoring |
 | python-dotenv | Environment variable loading |
+
+### Database
+| Technology | Purpose |
+|---------|---------|
+| Supabase | Cloud persistent data storage |
+| PostgreSQL | Embedded relational DB backend |
+| Row Level Security (RLS) | Secures individual dashboard `SELECT` queries seamlessly out-of-the-box |
+| PL/pgSQL | Language orchestrating backend RPC statistical aggregation formulas |
 
 ### Integrations
 - **Spotify Web API** — playlists, track metadata, OAuth 2.0 Authorization Code flow
