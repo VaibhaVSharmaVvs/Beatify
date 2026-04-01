@@ -18,8 +18,8 @@
     <td align="center"><img src="pics/Login light.png" alt="Login – Light" /><br/><sub>Login · Light</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="pics/Home Screen dark.png" alt="Settings – Dark" /><br/><sub>Game Settings · Dark</sub></td>
-    <td align="center"><img src="pics/Home Screen light.png" alt="Settings – Light" /><br/><sub>Game Settings · Light</sub></td>
+    <td align="center"><img src="pics/Home Screen dark.png" alt="Settings – Dark" /><br/><sub>Home Screen · Dark</sub></td>
+    <td align="center"><img src="pics/Home Screen light.png" alt="Settings – Light" /><br/><sub>Home Screen · Light</sub></td>
   </tr>
   <tr>
     <td align="center"><img src="pics/Select Playlist dark.png" alt="Playlist – Dark" /><br/><sub>Playlist Selection · Dark</sub></td>
