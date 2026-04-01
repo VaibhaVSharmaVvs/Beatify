@@ -45,7 +45,7 @@
 
 Beatify is a music trivia game that turns any of your Spotify playlists into a live guessing challenge. Each round streams a short clip of a real song directly through the Spotify Web Playback SDK — no uploads, no pre-seeded data. You type what you hear: song name, artist, album, and release year.
 
-The backend fetches tracks on demand from Spotify's API, scores your answers server-side using fuzzy string matching, and returns per-field breakdowns per round. A post-game analytics screen shows your accuracy rates, reflex times, and best streak across the session.
+The backend fetches tracks on demand from Spotify's API, scores your answers server-side using fuzzy string matching, and returns per-field breakdowns per round. A post-game analytics screen shows your accuracy rates, reflex times, and best streak across the session, all durably logged to a Supabase PostgreSQL database to construct an ongoing personal leaderboard.
 
 ---
 
@@ -65,6 +65,7 @@ If you've built a gym playlist, a road trip mix, or a decade-specific deep-cut c
 - **Configurable Snippet Duration** — four difficulty tiers control how long the clip plays before you must guess
 - **Multi-field Guessing** — independently toggle Song Name (always on), Artist, Album, and Release Year per session
 - **Fuzzy Answer Matching** — server-side scoring via `rapidfuzz`; minor typos and small variations are forgiven
+- **Lifetime Aggregation** — all historical match data is preserved securely in Supabase and retrieved via an ultra-fast Remote Procedure Call to populate your career stat leaderboard.
 - **Featured Artist Bonus** — each correctly guessed featured artist beyond the primary earns +1 extra point
 - **Singles Rule** — when a track's album name equals its title (i.e. it's a single), typing `"single"`, `"none"`, `"no album"`, or the song name itself in the album field is accepted for full points
 
@@ -379,6 +380,7 @@ Beatify/
 │   ├── main.py          # FastAPI app, CORS config, router registration
 │   ├── auth.py          # /login, /callback, /refresh endpoints
 │   ├── game.py          # /playlists, /start_game, /submit_guess, /next_round
+│   ├── db.py            # Supabase Python SDK logic (upserts & session history)
 │   ├── models.py        # Pydantic models (Track, GameState, GuessSubmission)
 │   ├── requirements.txt
 │   └── .env.example
@@ -399,7 +401,8 @@ Beatify/
 │       │   ├── Rulebook.tsx
 │       │   └── ThemeToggle.tsx
 │       ├── hooks/
-│       │   └── use-theme.ts  # Dark/light mode with localStorage persistence
+│       │   ├── use-theme.ts  # Dark/light mode with localStorage persistence
+│       │   └── use-stats.ts  # Executes Postgres RPC calls for user analytics
 │       └── api.js            # Axios instance, interceptor, all API calls
 │
 └── pics/                     # UI screenshots (dark + light variants)
@@ -409,9 +412,8 @@ Beatify/
 
 ## 📈 Future Improvements
 
-- **Persistent storage** — replace in-memory game state with a database (e.g. PostgreSQL) and a caching layer (e.g. Redis) for session management and leaderboard support
+- **Global Leaderboards** — aggregate all player rows via SQL to implement a global Top 10 High-score ranking
 - **Multiplayer** — shared game sessions with WebSocket synchronisation
-- **Leaderboards** — cross-session score history per user
 - **More hint types** — lyrics snippet, genre tag, decade hint
 
 ---
