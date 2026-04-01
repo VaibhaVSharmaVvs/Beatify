@@ -18,8 +18,8 @@
     <td align="center"><img src="pics/Login light.png" alt="Login – Light" /><br/><sub>Login · Light</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="pics/Game settings dark.png" alt="Settings – Dark" /><br/><sub>Game Settings · Dark</sub></td>
-    <td align="center"><img src="pics/Game settings light.png" alt="Settings – Light" /><br/><sub>Game Settings · Light</sub></td>
+    <td align="center"><img src="pics/Home Screen dark.png" alt="Settings – Dark" /><br/><sub>Game Settings · Dark</sub></td>
+    <td align="center"><img src="pics/Home Screen light.png" alt="Settings – Light" /><br/><sub>Game Settings · Light</sub></td>
   </tr>
   <tr>
     <td align="center"><img src="pics/Select Playlist dark.png" alt="Playlist – Dark" /><br/><sub>Playlist Selection · Dark</sub></td>
@@ -246,6 +246,47 @@ flowchart LR
 ```
 
 Game state is securely maintained in-memory server-side, tied to individual authentications, while long-term persistent gameplay history logic is delegated strictly to the PostgreSQL analytics engine via Remote Procedure Calls.
+
+### Database Schema
+
+![Database Schema](pics/DB-Schema.png)
+
+### Error Handling & Exception Flow
+
+```mermaid
+flowchart TD
+    Start["User Action / Request"] --> API["Axios Request (api.js)"]
+    
+    API --> Backend["FastAPI Endpoint"]
+    
+    %% API Edge Errors
+    Backend --> ValidToken{"Valid OAuth Token?"}
+    ValidToken -- No --> TokenError["FastAPI: Raise 401 Unauthorized"]
+    TokenError --> ClientCatch["Axios catch()"]
+    ClientCatch --> RedirectLogin["React redirects to /login"]
+    
+    %% Business Logic Errors
+    ValidToken -- Yes --> ValidGame{"Game ID in Memory?"}
+    ValidGame -- No --> GameError["FastAPI: Raise 404 Not Found"]
+    GameError --> ClientCatchToast["React toast.error()"]
+    
+    %% Third-party Exceptions
+    ValidGame -- Yes --> SpotifyCall["Call Spotify API"]
+    SpotifyCall --> SpotifyFail{"API Throws Error?"}
+    SpotifyFail -- Yes --> TryCatchPlay["Backend Exception Block"]
+    TryCatchPlay --> HTTP500["FastAPI Raise 500"]
+    HTTP500 --> ClientCatchToast
+    
+    %% Database Constraints Errors
+    ValidGame -- Session Save --> DBSave["Supabase Insert (save_session)"]
+    DBSave --> DBFail{"Foreign Key Constraint<br/>(Missing Player)?"}
+    DBFail -- Yes --> TryCatchDB["FastAPI Exception Block"]
+    TryCatchDB --> HTTP500
+    
+    %% User Facing Results
+    ClientCatchToast --> DisplayToUser["Show non-blocking UI Notification"]
+    RedirectLogin --> RefreshState["Force User Re-authentication"]
+```
 
 ---
 
