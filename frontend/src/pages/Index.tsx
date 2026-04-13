@@ -281,7 +281,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <ThemeToggle theme={theme} onToggle={toggle} />
       {phase === "login" && (
-        <LoginScreen onConnect={() => window.location.href = 'http://localhost:8000/login'} />
+        <LoginScreen onConnect={() => window.location.href = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/login`} />
       )}
       {phase === "settings" && (
         <GameSettings
