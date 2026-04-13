@@ -9,12 +9,9 @@ load_dotenv()
 
 app = FastAPI(title="Guess the Song API")
 
-# CORS configuration
-origins = [
-    "http://localhost:5173", # Vite default
-    "http://localhost:5174", # Vite fallback
-    "http://localhost:3000", # React default
-]
+# CORS configuration — reads from env var in production, falls back to localhost for dev
+allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:5174,http://localhost:3000")
+origins = [o.strip() for o in allowed_origins_env.split(",")]
 
 app.add_middleware(
     CORSMiddleware,
