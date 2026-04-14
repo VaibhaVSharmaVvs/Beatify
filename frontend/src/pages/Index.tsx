@@ -41,6 +41,7 @@ const Index = () => {
     timerSeconds: 10,
     rounds: 10,
     playlistName: '',
+    replayEnabled: false,
     categories: {
       artist: true,
       album: true,
@@ -301,6 +302,7 @@ const Index = () => {
           totalRounds={settings.rounds}
           timeLeft={timeLeft}
           timerEnabled={settings.timerEnabled}
+          replayEnabled={settings.replayEnabled}
           categories={settings.categories}
           hintMode={settings.hintMode}
           albumArt={currentRoundData?.image_url}
@@ -309,6 +311,11 @@ const Index = () => {
           isSpotifyConnected={isPlayerReady}
           onGuessChange={(g) => { currentGuessRef.current = g; }}
           onSubmitGuess={submitGuessAndShowResults}
+          onReplay={() => {
+            if (currentRoundData?.uri) {
+              playUri(currentRoundData.uri, settings.difficulty);
+            }
+          }}
         />
       )}
       {phase === "result" && roundResult && (

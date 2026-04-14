@@ -159,6 +159,10 @@ const Rulebook = () => {
                   </li>
                   <li className="flex gap-2">
                     <span className="text-primary">•</span>
+                    <span><span className="text-foreground font-medium">Replay</span> — toggle on/off the ability to replay the audio snippet during a round.</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-primary">•</span>
                     <span><span className="text-foreground font-medium">Playlist</span> — pick any playlist from your Spotify library.</span>
                   </li>
                 </ul>

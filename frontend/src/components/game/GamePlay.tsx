@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Send, Eye } from "lucide-react";
+import { Send, Eye, Repeat } from "lucide-react";
 
 interface GamePlayProps {
   score: number;
@@ -8,6 +8,7 @@ interface GamePlayProps {
   totalRounds: number;
   timeLeft: number;
   timerEnabled: boolean;
+  replayEnabled: boolean;
   categories: { artist: boolean; album: boolean; year: boolean };
   hintMode: string;
   albumArt?: string;
@@ -16,9 +17,10 @@ interface GamePlayProps {
   isSpotifyConnected?: boolean;
   onGuessChange: (g: { song: string; artist: string; album: string; year: string }) => void;
   onSubmitGuess: (guess: { song: string; artist: string; album: string; year: string }) => void;
+  onReplay: () => void;
 }
 
-const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, categories, hintMode, albumArt, isPlaying, currentStreak, isSpotifyConnected, onGuessChange, onSubmitGuess }: GamePlayProps) => {
+const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, replayEnabled, categories, hintMode, albumArt, isPlaying, currentStreak, isSpotifyConnected, onGuessChange, onSubmitGuess, onReplay }: GamePlayProps) => {
   const [song, setSong] = useState("");
   const [artist, setArtist] = useState("");
   const [album, setAlbum] = useState("");
@@ -82,22 +84,41 @@ const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, categorie
 
         {/* Round & Timer */}
         <div className="game-card scale-in">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 relative">
+            {/* Left — round counter */}
             <div>
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Round</p>
               <p className="score-display text-2xl font-bold">{round}<span className="text-muted-foreground text-lg">/{totalRounds}</span></p>
             </div>
-            {currentStreak > 0 && (
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-orange-500/10 border border-orange-500/20 text-orange-400">
-                🔥{currentStreak}
+
+            {/* Centre — replay button */}
+            {replayEnabled && (
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+                <button
+                  onClick={onReplay}
+                  disabled={isPlaying}
+                  title="Replay snippet"
+                  className="flex items-center justify-center p-2 rounded-full text-muted-foreground focus:outline-none hover:text-primary hover:bg-primary/10 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group"
+                >
+                  <Repeat className="w-6 h-6 group-hover:scale-110 group-active:scale-95 transition-transform" />
+                </button>
               </div>
             )}
-            {timerEnabled && (
-              <div className="text-right">
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">Time</p>
-                <p className="score-display text-2xl font-bold" style={{ color: timerColor }}>{timeLeft}s</p>
-              </div>
-            )}
+
+            {/* Right — streak & timer */}
+            <div className="flex items-center gap-3">
+              {currentStreak > 0 && (
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-orange-500/10 border border-orange-500/20 text-orange-400">
+                  🔥{currentStreak}
+                </div>
+              )}
+              {timerEnabled && (
+                <div className="text-right">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider">Time</p>
+                  <p className="score-display text-2xl font-bold" style={{ color: timerColor }}>{timeLeft}s</p>
+                </div>
+              )}
+            </div>
           </div>
           {timerEnabled && (
             <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
