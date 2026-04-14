@@ -312,8 +312,8 @@ const Index = () => {
           onGuessChange={(g) => { currentGuessRef.current = g; }}
           onSubmitGuess={submitGuessAndShowResults}
           onReplay={() => {
-            if (currentRoundData?.uri && deviceId) {
-              playTrack(token, deviceId, currentRoundData.uri);
+            if (currentRoundData?.uri) {
+              playUri(currentRoundData.uri, settings.difficulty);
             }
           }}
         />
