@@ -1,4 +1,4 @@
-import { Settings, Clock, Hash, ChevronRight, Loader2, Image as ImageIcon, Music, HelpCircle, Gamepad2 } from "lucide-react";
+import { Settings, Clock, Hash, ChevronRight, Loader2, Image as ImageIcon, Music, HelpCircle, Gamepad2, Repeat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -182,9 +182,18 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
                   </div>
                 </div>
               </div>
-              <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-                Replay Snippet
-              </label>
+              <div className="flex items-center gap-2">
+                <Repeat className="w-4 h-4 text-muted-foreground" />
+                <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                  Replay
+                </label>
+                <div className="relative group flex items-center justify-center cursor-help text-right group pr-1">
+                  <HelpCircle className="w-3.5 h-3.5 text-muted-foreground opacity-50 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute right-0 top-full mt-2 px-3 py-1.5 bg-black/95 text-xs font-medium text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
+                    Adds a replay button during rounds
+                  </div>
+                </div>
+              </div>
             </div>
             <div className="flex items-center justify-between gap-4">
               {/* Timer toggle — left */}
@@ -218,12 +227,6 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
                       replayEnabled ? "translate-x-5" : "translate-x-1"
                     }`}
                   />
-                </div>
-                <div className="relative group flex items-center justify-center cursor-help">
-                  <HelpCircle className="w-3.5 h-3.5 text-muted-foreground opacity-50 hover:opacity-100 transition-opacity" />
-                  <div className="absolute right-0 top-full mt-2 px-3 py-1.5 bg-black/95 text-xs font-medium text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
-                    Adds a replay button during rounds
-                  </div>
                 </div>
               </label>
             </div>
