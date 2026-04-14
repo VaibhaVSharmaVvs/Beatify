@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Send, Eye, Play } from "lucide-react";
+import { Send, Eye, Repeat } from "lucide-react";
 
 interface GamePlayProps {
   score: number;
@@ -84,7 +84,7 @@ const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, replayEna
 
         {/* Round & Timer */}
         <div className="game-card scale-in">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 relative">
             {/* Left — round counter */}
             <div>
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Round</p>
@@ -93,14 +93,16 @@ const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, replayEna
 
             {/* Centre — replay button */}
             {replayEnabled && (
-              <button
-                onClick={onReplay}
-                disabled={isPlaying}
-                title="Replay snippet"
-                className="flex items-center justify-center w-10 h-10 rounded-full bg-foreground text-background hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 group shadow-md"
-              >
-                <Play className="w-5 h-5 fill-current ml-0.5" />
-              </button>
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+                <button
+                  onClick={onReplay}
+                  disabled={isPlaying}
+                  title="Replay snippet"
+                  className="flex items-center justify-center p-2 rounded-full text-muted-foreground focus:outline-none hover:text-primary hover:bg-primary/10 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group"
+                >
+                  <Repeat className="w-6 h-6 group-hover:scale-110 group-active:scale-95 transition-transform" />
+                </button>
+              </div>
             )}
 
             {/* Right — streak & timer */}
