@@ -24,6 +24,7 @@ interface GameSettingsProps {
     rounds: number;
     playlistId: string;
     playlistName: string;
+    replayEnabled: boolean;
     categories: {
       artist: boolean;
       album: boolean;
@@ -51,6 +52,7 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
   const [rounds, setRounds] = useState(10);
   const [categories, setCategories] = useState({ artist: true, album: true, year: false });
   const [hintMode, setHintMode] = useState("none");
+  const [replayEnabled, setReplayEnabled] = useState(false);
   const [selectedPlaylist, setSelectedPlaylist] = useState<string | null>(null);
 
   const handleStart = () => {
@@ -63,6 +65,7 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
       rounds,
       playlistId: selectedPlaylist,
       playlistName: pl?.name || 'Unknown Playlist',
+      replayEnabled,
       categories,
       hintMode,
     });
@@ -164,21 +167,27 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
             </div>
           </div>
 
-          {/* Timer */}
+          {/* Timer + Replay */}
           <div className="space-y-3 mb-6">
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-muted-foreground" />
-              <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-                Timer
-              </label>
-              <div className="relative group flex items-center justify-center cursor-help ml-1">
-                <HelpCircle className="w-3.5 h-3.5 text-muted-foreground opacity-50 hover:opacity-100 transition-opacity" />
-                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1.5 bg-black/95 text-xs font-medium text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
-                  Controls the duration of each round
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-muted-foreground" />
+                <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                  Timer
+                </label>
+                <div className="relative group flex items-center justify-center cursor-help ml-1">
+                  <HelpCircle className="w-3.5 h-3.5 text-muted-foreground opacity-50 hover:opacity-100 transition-opacity" />
+                  <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1.5 bg-black/95 text-xs font-medium text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
+                    Controls the duration of each round
+                  </div>
                 </div>
               </div>
+              <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                Replay Snippet
+              </label>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center justify-between gap-4">
+              {/* Timer toggle — left */}
               <label className="flex items-center gap-2 cursor-pointer">
                 <div
                   className={`w-10 h-6 rounded-full transition-colors duration-200 relative cursor-pointer ${
@@ -193,6 +202,29 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
                   />
                 </div>
                 <span className="text-sm">{timerEnabled ? "Enabled" : "Disabled"}</span>
+              </label>
+
+              {/* Replay toggle — right */}
+              <label className="flex items-center gap-2 cursor-pointer">
+                <span className="text-sm">{replayEnabled ? "Enabled" : "Disabled"}</span>
+                <div
+                  className={`w-10 h-6 rounded-full transition-colors duration-200 relative cursor-pointer ${
+                    replayEnabled ? "bg-primary" : "bg-muted"
+                  }`}
+                  onClick={() => setReplayEnabled(!replayEnabled)}
+                >
+                  <div
+                    className={`absolute top-1 w-4 h-4 rounded-full bg-background transition-transform duration-200 ${
+                      replayEnabled ? "translate-x-5" : "translate-x-1"
+                    }`}
+                  />
+                </div>
+                <div className="relative group flex items-center justify-center cursor-help">
+                  <HelpCircle className="w-3.5 h-3.5 text-muted-foreground opacity-50 hover:opacity-100 transition-opacity" />
+                  <div className="absolute right-0 top-full mt-2 px-3 py-1.5 bg-black/95 text-xs font-medium text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
+                    Adds a replay button during rounds
+                  </div>
+                </div>
               </label>
             </div>
             {timerEnabled && (

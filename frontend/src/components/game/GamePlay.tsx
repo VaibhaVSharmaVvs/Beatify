@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Send, Eye } from "lucide-react";
+import { Send, Eye, RotateCcw } from "lucide-react";
 
 interface GamePlayProps {
   score: number;
@@ -8,6 +8,7 @@ interface GamePlayProps {
   totalRounds: number;
   timeLeft: number;
   timerEnabled: boolean;
+  replayEnabled: boolean;
   categories: { artist: boolean; album: boolean; year: boolean };
   hintMode: string;
   albumArt?: string;
@@ -16,9 +17,10 @@ interface GamePlayProps {
   isSpotifyConnected?: boolean;
   onGuessChange: (g: { song: string; artist: string; album: string; year: string }) => void;
   onSubmitGuess: (guess: { song: string; artist: string; album: string; year: string }) => void;
+  onReplay: () => void;
 }
 
-const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, categories, hintMode, albumArt, isPlaying, currentStreak, isSpotifyConnected, onGuessChange, onSubmitGuess }: GamePlayProps) => {
+const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, replayEnabled, categories, hintMode, albumArt, isPlaying, currentStreak, isSpotifyConnected, onGuessChange, onSubmitGuess, onReplay }: GamePlayProps) => {
   const [song, setSong] = useState("");
   const [artist, setArtist] = useState("");
   const [album, setAlbum] = useState("");
@@ -83,21 +85,37 @@ const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, categorie
         {/* Round & Timer */}
         <div className="game-card scale-in">
           <div className="flex items-center justify-between mb-4">
+            {/* Left — round counter */}
             <div>
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Round</p>
               <p className="score-display text-2xl font-bold">{round}<span className="text-muted-foreground text-lg">/{totalRounds}</span></p>
             </div>
-            {currentStreak > 0 && (
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-orange-500/10 border border-orange-500/20 text-orange-400">
-                🔥{currentStreak}
-              </div>
+
+            {/* Centre — replay button */}
+            {replayEnabled && (
+              <button
+                onClick={onReplay}
+                title="Replay snippet"
+                className="flex items-center justify-center w-10 h-10 rounded-full border border-primary/40 bg-primary/10 hover:bg-primary/20 hover:border-primary/70 transition-all duration-200 hover:scale-110 active:scale-95 group"
+              >
+                <RotateCcw className="w-4 h-4 text-primary group-hover:rotate-[-30deg] transition-transform duration-300" />
+              </button>
             )}
-            {timerEnabled && (
-              <div className="text-right">
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">Time</p>
-                <p className="score-display text-2xl font-bold" style={{ color: timerColor }}>{timeLeft}s</p>
-              </div>
-            )}
+
+            {/* Right — streak & timer */}
+            <div className="flex items-center gap-3">
+              {currentStreak > 0 && (
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-orange-500/10 border border-orange-500/20 text-orange-400">
+                  🔥{currentStreak}
+                </div>
+              )}
+              {timerEnabled && (
+                <div className="text-right">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider">Time</p>
+                  <p className="score-display text-2xl font-bold" style={{ color: timerColor }}>{timeLeft}s</p>
+                </div>
+              )}
+            </div>
           </div>
           {timerEnabled && (
             <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
