@@ -40,12 +40,14 @@ axios.interceptors.response.use(
           // Refresh failed (maybe the refresh token expired too). Force logout.
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
+          clearGameCache();
           window.location.href = '/';
           return Promise.reject(refreshError);
         }
       } else {
         // No refresh token exists. Force logout.
         localStorage.removeItem('access_token');
+        clearGameCache();
         window.location.href = '/';
       }
     }
@@ -54,14 +56,54 @@ axios.interceptors.response.use(
   }
 );
 
-// We keep the 'token' argument for backward compatibility with Index.tsx, 
-// but getAuthHeaders strictly enforces using the absolute freshest token from localStorage.
-export const getPlaylists = (token) => {
-    return axios.get(`${BASE_URL}/playlists`, getAuthHeaders());
+export const clearGameCache = () => {
+  localStorage.removeItem('beatify_cache_playlists');
+  localStorage.removeItem('beatify_cache_profile');
 };
 
-export const getUserProfile = (token) => {
-    return axios.get(`${BASE_URL}/me`, getAuthHeaders());
+const fetchWithCache = async (cacheKey, ttlMs, fetcher, forceRefresh = false) => {
+    if (!forceRefresh) {
+        const cachedItem = localStorage.getItem(cacheKey);
+        if (cachedItem) {
+            try {
+                const parsed = JSON.parse(cachedItem);
+                if (Date.now() - parsed.timestamp < ttlMs) {
+                    return Promise.resolve({ data: parsed.data });
+                }
+            } catch (e) {
+                console.warn("Invalid cache data, refetching.");
+            }
+        }
+    }
+    
+    // Fetch fresh
+    const response = await fetcher();
+    // Cache it
+    localStorage.setItem(cacheKey, JSON.stringify({
+        data: response.data,
+        timestamp: Date.now()
+    }));
+    return response;
+};
+
+// We keep the 'token' argument for backward compatibility with Index.tsx, 
+// but getAuthHeaders strictly enforces using the absolute freshest token from localStorage.
+export const getPlaylists = (token, forceRefresh = false) => {
+    return fetchWithCache(
+        'beatify_cache_playlists',
+        60 * 60 * 1000, // 1 hour
+        () => axios.get(`${BASE_URL}/playlists`, getAuthHeaders()),
+        forceRefresh
+    );
+};
+
+export const getUserProfile = (token, forceRefresh = false) => {
+    return fetchWithCache(
+        'beatify_cache_profile',
+        24 * 60 * 60 * 1000, // 24 hours
+        () => axios.get(`${BASE_URL}/me`, getAuthHeaders()),
+        forceRefresh
+    );
 };
 
 export const startGame = (playlistId, token, rounds, categories) => {
