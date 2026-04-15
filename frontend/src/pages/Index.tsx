@@ -8,6 +8,7 @@ import ThemeToggle from "@/components/game/ThemeToggle";
 import { useTheme } from "@/hooks/use-theme";
 import { getPlaylists, getUserProfile, startGame, submitGuess, nextRound, playTrack, saveSession, clearGameCache } from "../api";
 import { toast } from "sonner";
+import { LogOut } from "lucide-react";
 
 type GamePhase = "login" | "settings" | "playing" | "result" | "gameover";
 
@@ -144,6 +145,16 @@ const Index = () => {
     } finally {
       setIsLoadingPlaylists(false);
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    clearGameCache();
+    setToken(null);
+    setSpotifyId(null);
+    setPhase("login");
+    toast("Logged out successfully");
   };
 
   // 3. Initialize Spotify Player
@@ -418,6 +429,20 @@ const Index = () => {
             }).catch(err => console.error('[saveSession]', err));
           }}
         />
+      )}
+
+      {/* Floating Logout Button */}
+      {phase !== "login" && (
+        <div className="fixed bottom-6 right-6 z-40">
+          <button
+            onClick={handleLogout}
+            title="Log Out"
+            className="group relative flex items-center gap-2 px-4 py-2 bg-card border-none hover:bg-destructive/10 text-muted-foreground hover:text-destructive rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.15)] hover:shadow-destructive/20 hover:scale-105 transition-all duration-300"
+          >
+            <LogOut className="w-4 h-4 transition-transform group-hover:scale-110" />
+            <span className="text-sm font-medium tracking-wide">Logout</span>
+          </button>
+        </div>
       )}
     </div>
   );
