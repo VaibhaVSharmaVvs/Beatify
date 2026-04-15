@@ -1,4 +1,4 @@
-import { Settings, Clock, Hash, ChevronRight, Loader2, Image as ImageIcon, Music, HelpCircle, Gamepad2, Repeat } from "lucide-react";
+import { Settings, Clock, Hash, ChevronRight, Loader2, Image as ImageIcon, Music, HelpCircle, Gamepad2, Repeat, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,6 +36,7 @@ interface GameSettingsProps {
   isStartingGame?: boolean;
   isSpotifyConnected?: boolean;
   spotifyId?: string | null;
+  onRefreshPlaylists?: () => void;
 }
 
 const difficulties = [
@@ -45,7 +46,7 @@ const difficulties = [
   { id: "impossible", label: "Virtuoso", seconds: "1s", color: "text-[hsl(var(--game-error))]" },
 ];
 
-const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isStartingGame, isSpotifyConnected, spotifyId }: GameSettingsProps) => {
+const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isStartingGame, isSpotifyConnected, spotifyId, onRefreshPlaylists }: GameSettingsProps) => {
   const [difficulty, setDifficulty] = useState("easy");
   const [timerEnabled, setTimerEnabled] = useState(true);
   const [timerSeconds, setTimerSeconds] = useState(10);
@@ -146,7 +147,7 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
                 Difficulty
               </label>
               <div className="relative group flex items-center justify-center cursor-help">
-                <HelpCircle className="w-3.5 h-3.5 text-muted-foreground opacity-50 hover:opacity-100 transition-opacity" />
+                <HelpCircle className="w-3.5 h-3.5 text-muted-foreground opacity-50 group-hover:opacity-100 group-hover:text-primary group-hover:scale-110 transition-all duration-200" />
                 <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1.5 bg-black/95 text-xs font-medium text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
                   Modulates the snippet duration to increase challenge
                 </div>
@@ -176,7 +177,7 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
                   Timer
                 </label>
                 <div className="relative group flex items-center justify-center cursor-help ml-1">
-                  <HelpCircle className="w-3.5 h-3.5 text-muted-foreground opacity-50 hover:opacity-100 transition-opacity" />
+                  <HelpCircle className="w-3.5 h-3.5 text-muted-foreground opacity-50 group-hover:opacity-100 group-hover:text-primary group-hover:scale-110 transition-all duration-200" />
                   <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1.5 bg-black/95 text-xs font-medium text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
                     Controls the duration of each round
                   </div>
@@ -188,7 +189,7 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
                   Replay
                 </label>
                 <div className="relative group flex items-center justify-center cursor-help text-right group pr-1">
-                  <HelpCircle className="w-3.5 h-3.5 text-muted-foreground opacity-50 group-hover:opacity-100 transition-opacity" />
+                  <HelpCircle className="w-3.5 h-3.5 text-muted-foreground opacity-50 group-hover:opacity-100 group-hover:text-primary group-hover:scale-110 transition-all duration-200" />
                   <div className="absolute right-0 top-full mt-2 px-3 py-1.5 bg-black/95 text-xs font-medium text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
                     Adds a replay button during rounds
                   </div>
@@ -257,7 +258,7 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
                 Rounds
               </label>
               <div className="relative group flex items-center justify-center cursor-help ml-1">
-                <HelpCircle className="w-3.5 h-3.5 text-muted-foreground opacity-50 hover:opacity-100 transition-opacity" />
+                <HelpCircle className="w-3.5 h-3.5 text-muted-foreground opacity-50 group-hover:opacity-100 group-hover:text-primary group-hover:scale-110 transition-all duration-200" />
                 <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1.5 bg-black/95 text-xs font-medium text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
                   Sets the total number of songs in the game
                 </div>
@@ -285,7 +286,7 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
                 Visual Hint
               </label>
               <div className="relative group flex items-center justify-center cursor-help ml-1">
-                <HelpCircle className="w-3.5 h-3.5 text-muted-foreground opacity-50 hover:opacity-100 transition-opacity" />
+                <HelpCircle className="w-3.5 h-3.5 text-muted-foreground opacity-50 group-hover:opacity-100 group-hover:text-primary group-hover:scale-110 transition-all duration-200" />
                 <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1.5 bg-black/95 text-xs font-medium text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
                   Configure album art reveal settings to help guess the song
                 </div>
@@ -317,7 +318,7 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
                 Categories to Guess
               </label>
               <div className="relative group flex items-center justify-center cursor-help ml-1">
-                <HelpCircle className="w-3.5 h-3.5 text-muted-foreground opacity-50 hover:opacity-100 transition-opacity" />
+                <HelpCircle className="w-3.5 h-3.5 text-muted-foreground opacity-50 group-hover:opacity-100 group-hover:text-primary group-hover:scale-110 transition-all duration-200" />
                 <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1.5 bg-black/95 text-xs font-medium text-white rounded shadow-xl opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all pointer-events-none z-50 whitespace-nowrap border border-white/10">
                   Select which track fields you want to guess for extra points
                 </div>
@@ -346,7 +347,20 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
 
         {/* Playlist Selection */}
         <div className="space-y-4 slide-up" style={{ animationDelay: "0.2s" }}>
-          <h2 className="text-xl font-semibold">Select Playlist</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold">Select Playlist</h2>
+            {onRefreshPlaylists && (
+              <button
+                onClick={onRefreshPlaylists}
+                disabled={isLoadingPlaylists}
+                title="Sync from Spotify"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/40 hover:bg-primary/10 text-muted-foreground hover:text-primary border border-transparent hover:border-primary/30 hover:shadow-[0_0_15px_rgba(29,185,84,0.15)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isLoadingPlaylists ? 'animate-spin' : 'group-hover:animate-spin transition-all'}`} />
+                <span className="text-xs font-medium uppercase tracking-wider">Sync</span>
+              </button>
+            )}
+          </div>
           
           {isLoadingPlaylists ? (
             <div className="flex flex-col items-center justify-center py-12 space-y-4 rounded-2xl border-2 border-dashed border-primary/20 bg-card/30">

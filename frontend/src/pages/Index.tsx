@@ -6,7 +6,7 @@ import RoundResult from "@/components/game/RoundResult";
 import GameOver from "@/components/game/GameOver";
 import ThemeToggle from "@/components/game/ThemeToggle";
 import { useTheme } from "@/hooks/use-theme";
-import { getPlaylists, getUserProfile, startGame, submitGuess, nextRound, playTrack, saveSession } from "../api";
+import { getPlaylists, getUserProfile, startGame, submitGuess, nextRound, playTrack, saveSession, clearGameCache } from "../api";
 import { toast } from "sonner";
 
 type GamePhase = "login" | "settings" | "playing" | "result" | "gameover";
@@ -90,6 +90,7 @@ const Index = () => {
         // Force them to re-authenticate to populate the players table!
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
+        clearGameCache();
         setPhase("login");
         return;
       }
@@ -124,6 +125,26 @@ const Index = () => {
       });
     }
   }, [token]);
+
+  const handleRefreshPlaylists = async () => {
+    if (!token) return;
+    setIsLoadingPlaylists(true);
+    try {
+      const res = await getPlaylists(token, true); // forceRefresh
+      const mapped = res.data.items.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        image: p.images?.[0]?.url || '',
+        tracks: p.tracks?.total || 0
+      }));
+      setPlaylists(mapped);
+      toast.success("Playlists refreshed!");
+    } catch (err) {
+      toast.error("Failed to refresh playlists");
+    } finally {
+      setIsLoadingPlaylists(false);
+    }
+  };
 
   // 3. Initialize Spotify Player
   useEffect(() => {
@@ -314,6 +335,7 @@ const Index = () => {
           isStartingGame={isStartingGame}
           isSpotifyConnected={isPlayerReady}
           spotifyId={spotifyId}
+          onRefreshPlaylists={handleRefreshPlaylists}
         />
       )}
       {phase === "playing" && (
