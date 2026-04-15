@@ -6,7 +6,7 @@ import RoundResult from "@/components/game/RoundResult";
 import GameOver from "@/components/game/GameOver";
 import ThemeToggle from "@/components/game/ThemeToggle";
 import { useTheme } from "@/hooks/use-theme";
-import { getPlaylists, startGame, submitGuess, nextRound, playTrack, saveSession } from "../api";
+import { getPlaylists, getUserProfile, startGame, submitGuess, nextRound, playTrack, saveSession } from "../api";
 import { toast } from "sonner";
 
 type GamePhase = "login" | "settings" | "playing" | "result" | "gameover";
@@ -25,6 +25,7 @@ const Index = () => {
   const [spotifyId, setSpotifyId] = useState<string | null>(null);
   const [playlists, setPlaylists] = useState<any[]>([]);
   const [isLoadingPlaylists, setIsLoadingPlaylists] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
   const [isStartingGame, setIsStartingGame] = useState(false);
   
   // Game State
@@ -99,19 +100,23 @@ const Index = () => {
     }
   }, []);
 
-  // 2. Fetch playlists when token is ready
+  // 2. Fetch playlists & profile when token is ready
   useEffect(() => {
     if (token) {
       setIsLoadingPlaylists(true);
-      getPlaylists(token).then(res => {
+      Promise.all([
+        getPlaylists(token),
+        getUserProfile(token).catch(() => null) // fail gracefully
+      ]).then(([playlistsRes, profileRes]) => {
         // Map to Lovable's expected props
-        const mapped = res.data.items.map((p: any) => ({
+        const mapped = playlistsRes.data.items.map((p: any) => ({
           id: p.id,
           name: p.name,
           image: p.images?.[0]?.url || '',
           tracks: p.tracks?.total || 0
         }));
         setPlaylists(mapped);
+        if (profileRes?.data) setUserProfile(profileRes.data);
         setIsLoadingPlaylists(false);
       }).catch(err => {
         setIsLoadingPlaylists(false);
@@ -279,8 +284,24 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
       <ThemeToggle theme={theme} onToggle={toggle} />
+      {userProfile && phase !== "login" && (
+        <div className="absolute top-5 left-5 z-50 flex items-center gap-3 bg-card/80 backdrop-blur-md rounded-full pr-4 pl-1 py-1 border border-border shadow-sm">
+          {userProfile.images?.[0]?.url ? (
+            <img src={userProfile.images[0].url} alt="Profile" className="w-8 h-8 rounded-full object-cover" />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+              <span className="text-primary font-medium text-sm">
+                {userProfile.display_name?.[0]?.toUpperCase() || '?'}
+              </span>
+            </div>
+          )}
+          <span className="text-sm font-medium tracking-wide text-foreground">
+            {userProfile.display_name}
+          </span>
+        </div>
+      )}
       {phase === "login" && (
         <LoginScreen onConnect={() => window.location.href = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/login`} />
       )}
