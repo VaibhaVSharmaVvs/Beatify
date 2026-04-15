@@ -379,12 +379,27 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
                       : "border-transparent hover:border-border"
                   }`}
                 >
-                  <div className="aspect-square overflow-hidden">
-                    <img
-                      src={playlist.image}
-                      alt={playlist.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
+                  <div className="aspect-square overflow-hidden bg-card border-b border-border/50 relative flex items-center justify-center">
+                    {playlist.image ? (
+                      <img
+                        src={playlist.image}
+                        alt={playlist.name}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          const fallback = e.currentTarget.nextElementSibling;
+                          if (fallback) {
+                            (fallback as HTMLElement).style.display = 'flex';
+                          }
+                        }}
+                      />
+                    ) : null}
+                    <div 
+                      className="absolute inset-0 items-center justify-center pointer-events-none"
+                      style={{ display: playlist.image ? 'none' : 'flex' }}
+                    >
+                      <Music className="w-16 h-16 text-muted-foreground/20" />
+                    </div>
                   </div>
                   <div className="p-3 bg-card">
                     <p className="font-medium text-sm truncate">{playlist.name}</p>
