@@ -60,6 +60,10 @@ export const getPlaylists = (token) => {
     return axios.get(`${BASE_URL}/playlists`, getAuthHeaders());
 };
 
+export const getUserProfile = (token) => {
+    return axios.get(`${BASE_URL}/me`, getAuthHeaders());
+};
+
 export const startGame = (playlistId, token, rounds, categories) => {
     return axios.post(`${BASE_URL}/start_game`, null, {
         params: { 

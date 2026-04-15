@@ -18,6 +18,19 @@ games = {}
 def get_spotify_headers(token: str):
     return {"Authorization": f"Bearer {token}"}
 
+@router.get("/me")
+def get_user_profile(authorization: str = Header(None)):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Missing token")
+    token = authorization.split(" ")[1]
+    
+    headers = get_spotify_headers(token)
+    response = requests.get("https://api.spotify.com/v1/me", headers=headers)
+    if response.status_code != 200:
+        raise HTTPException(status_code=response.status_code, detail="Failed to fetch user profile")
+    
+    return response.json()
+
 @router.get("/playlists")
 def get_playlists(authorization: str = Header(None)):
     if not authorization:
