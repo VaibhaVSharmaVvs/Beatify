@@ -65,6 +65,7 @@ If you've built a gym playlist, a road trip mix, or a decade-specific deep-cut c
 - **Configurable Snippet Duration** — four difficulty tiers control how long the clip plays before you must guess
 - **Multi-field Guessing** — independently toggle Song Name (always on), Artist, Album, and Release Year per session
 - **Fuzzy Answer Matching** — server-side scoring via `rapidfuzz`; minor typos and small variations are forgiven
+- **Replay Snippet** — a minimal, inline repeat button available during gameplay to re-listen to the snippet for tough rounds (deducts no points!)
 - **Lifetime Aggregation** — all historical match data is preserved securely in Supabase and retrieved via an ultra-fast Remote Procedure Call to populate your career stat leaderboard.
 - **Featured Artist Bonus** — each correctly guessed featured artist beyond the primary earns +1 extra point
 - **Singles Rule** — when a track's album name equals its title (i.e. it's a single), typing `"single"`, `"none"`, `"no album"`, or the song name itself in the album field is accepted for full points
@@ -102,6 +103,8 @@ If you've built a gym playlist, a road trip mix, or a decade-specific deep-cut c
 - **Persistent Auth** — access and refresh tokens stored in `localStorage`; a global Axios interceptor silently refreshes the access token on 401s
 - **Database Persistence** — game history securely logged to a Supabase PostgreSQL database via a backend `service_role` client, binding unique Spotify IDs to session histories flawlessly.
 - **Server-Side Analytics Aggregation** — a native Postgres RPC function aggregates thousands of rows instantly within the database engine, returning a finalized, mathematically exact stats payload locally to eliminate O(N) client-side calculation loads.
+- **High-Performance Caching** — frontend `localStorage` caching wrapper strictly handles API TTLs (Time-To-Live). User profiles and playlists load instantly without redundant API calls, while volatile dashboard statistics completely bypass the cache for absolute accuracy.
+- **Session Logout & Sync** — deep cache-clearing mechanisms tied to a slick logout functionality and manual playlist sync buttons.
 - **Post-game Analytics** — average and fastest reflex time, per-category hit accuracy percentages, max streak, scrollable match history with album art and per-field result indicators
 - **Tiered Audio Feedback** — six distinct sound effects mapped to score percentage tiers on each round result screen
 - **Tiered Text Feedback** — randomised sarcastic / congratulatory message per score tier shown on the round result screen
@@ -179,6 +182,18 @@ sequenceDiagram
     participant FastAPI as Backend (game.py)
     participant Spotify as Spotify Web API
     participant Supabase as Database
+
+    %% App Initialization & Caching
+    User->>React: Opens App (Home/Settings)
+    alt Cache Hit (Valid TTL)
+        React->>React: Load Playlists/Profile from localStorage
+    else Cache Miss or Forced Sync
+        React->>FastAPI: GET /playlists & GET /me
+        FastAPI->>Spotify: Fetch from Spotify API
+        Spotify-->>FastAPI: JSON Data
+        FastAPI-->>React: Response Payload
+        React->>React: Save to localStorage Cache (1hr/24hr TTL)
+    end
 
     %% Start Game
     User->>React: Clicks "Start Game" with Settings
@@ -390,6 +405,15 @@ npm install
 npm run dev
 # Runs at http://localhost:5173
 ```
+
+---
+
+## 🌍 Deployment
+
+Beatify is architected as a decoupled monorepo, perfectly suited for modern cloud providers:
+
+- **Backend (Render / Railway / Heroku)**: Deploy the FastAPI backend as a standard Python web service. Simply connect the repository pointing to the `backend/` directory, set the build command to `pip install -r requirements.txt`, and the start command to `uvicorn main:app --host 0.0.0.0 --port $PORT`. Ensure you add your Spotify API credentials and `FRONTEND_URL` to your provider's environment variables.
+- **Frontend (Vercel / Netlify)**: The React/Vite frontend deploys seamlessly out-of-the-box on Vercel. Connect the repository, set the root directory to `frontend/`, the build command to `npm run build`, and output directory to `dist`. Add `VITE_API_BASE_URL` to your Vercel project's environment variables, pointing it exactly to your newly deployed backend URL.
 
 ---
 
