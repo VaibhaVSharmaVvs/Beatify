@@ -31,6 +31,9 @@ const PrivacyPolicy = () => {
               <li>Your Playlists (and the tracks contained within)</li>
               <li>Gameplay statistics (generated during game sessions)</li>
             </ul>
+            <p className="text-muted-foreground leading-relaxed mt-4">
+              We may also access your Spotify account email, playback state, and connected device information as required for authentication and playback functionality via the Spotify Web API and Web Playback SDK.
+            </p>
           </section>
 
           <section className="space-y-4">
@@ -48,23 +51,28 @@ const PrivacyPolicy = () => {
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-2xl font-semibold">3. Data Storage</h2>
+            <h2 className="text-2xl font-semibold">3. Data Storage & Deletion</h2>
             <p className="text-muted-foreground leading-relaxed">
               Your Spotify ID and gameplay history (which tracks were guessed correctly/incorrectly and corresponding timestamps) are securely stored in our managed database (Supabase) exclusively to enable historical leaderboards and stat aggregation.
+            </p>
+            <p className="text-muted-foreground leading-relaxed">
+              You may request deletion of your stored data by contacting us.
             </p>
           </section>
 
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold">4. Data Sharing & Security</h2>
             <p className="text-muted-foreground leading-relaxed">
-              We absolutely <strong>do not sell, rent, or share</strong> your personal metadata with third parties, advertisers, or data brokers. The application requests only the minimum OAuth scopes necessary to facilitate the Web Playback SDK and fetch playlist metadata.
+              We do not sell, rent, or share your personal data. The application requests only the minimum OAuth scopes necessary to facilitate the Web Playback SDK and fetch playlist metadata.
             </p>
           </section>
 
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold">5. Contact</h2>
             <p className="text-muted-foreground leading-relaxed">
-              If you have any questions or concerns regarding this policy or your data, please contact us via our project repository:
+              If you have any questions or concerns regarding this policy, or to request data deletion, please contact us at:
+              <br />
+              For support, contact: <strong>vaibhavsharmavvs@gmail.com</strong>
               <br />
               <a 
                 href="https://github.com/VaibhaVSharmaVvs/Beatify" 

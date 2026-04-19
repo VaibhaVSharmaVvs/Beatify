@@ -32,7 +32,7 @@ const TermsOfService = () => {
               Beatify is an independent third-party application. <strong>We are in no way affiliated, endorsed, certified, or sponsored by Spotify AB.</strong> We utilize the public Spotify Web API strictly within their developer guidelines to provide the trivia experience.
             </p>
             <p className="text-muted-foreground leading-relaxed">
-              As a user of Beatify, you must also comply with the official Spotify Terms and Conditions regarding the use of your account and playback features.
+              Users are responsible for ensuring their use of Spotify complies with Spotify’s Terms of Service.
             </p>
           </section>
 
@@ -53,7 +53,7 @@ const TermsOfService = () => {
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold">5. Contact</h2>
             <p className="text-muted-foreground leading-relaxed">
-              For issues, questions, or correspondence, please reach out to our project repository:
+              For support, contact: <strong>vaibhavsharmavvs@gmail.com</strong>
               <br />
               <a 
                 href="https://github.com/VaibhaVSharmaVvs/Beatify" 
