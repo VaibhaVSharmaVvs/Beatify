@@ -1,5 +1,6 @@
 
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import Rulebook from "./Rulebook";
 
 interface LoginScreenProps {
@@ -34,9 +35,18 @@ const LoginScreen = ({ onConnect }: LoginScreenProps) => {
           Connect with Spotify
         </Button>
 
-        <p className="text-muted-foreground text-sm">
-          Premium required for full playback.
-        </p>
+        <div className="space-y-3 pt-4 border-t border-white/5">
+          <p className="text-muted-foreground text-sm font-medium">
+            Premium required for full playback.
+          </p>
+          
+          <p className="text-[11px] text-muted-foreground/50 leading-relaxed max-w-[280px] mx-auto">
+            By continuing, you agree to our{' '}
+            <Link to="/privacy" className="hover:text-primary hover:underline transition-colors">Privacy Policy</Link>
+            {' '}and{' '}
+            <Link to="/terms" className="hover:text-primary hover:underline transition-colors">Terms of Service</Link>.
+          </p>
+        </div>
       </div>
       
       {/* Rulebook Hover Widget */}
