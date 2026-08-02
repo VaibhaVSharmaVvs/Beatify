@@ -7,6 +7,7 @@ interface GamePlayProps {
   round: number;
   totalRounds: number;
   timeLeft: number;
+  timerSeconds: number;
   timerEnabled: boolean;
   replayEnabled: boolean;
   categories: { artist: boolean; album: boolean; year: boolean };
@@ -20,7 +21,7 @@ interface GamePlayProps {
   onReplay: () => void;
 }
 
-const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, replayEnabled, categories, hintMode, albumArt, isPlaying, currentStreak, isSpotifyConnected, onGuessChange, onSubmitGuess, onReplay }: GamePlayProps) => {
+const GamePlay = ({ score, round, totalRounds, timeLeft, timerSeconds, timerEnabled, replayEnabled, categories, hintMode, albumArt, isPlaying, currentStreak, isSpotifyConnected, onGuessChange, onSubmitGuess, onReplay }: GamePlayProps) => {
   const [song, setSong] = useState("");
   const [artist, setArtist] = useState("");
   const [album, setAlbum] = useState("");
@@ -48,7 +49,9 @@ const GamePlay = ({ score, round, totalRounds, timeLeft, timerEnabled, replayEna
   const updateAlbum = (v: string) => { setAlbum(v); onGuessChange({ song, artist, album: v, year }); };
   const updateYear = (v: string) => { setYear(v); onGuessChange({ song, artist, album, year: v }); };
 
-  const timerPercentage = timerEnabled ? (timeLeft / 30) * 100 : 100;
+  const timerPercentage = timerEnabled && timerSeconds > 0
+    ? Math.max(0, Math.min(100, (timeLeft / timerSeconds) * 100))
+    : 100;
   const timerColor = timeLeft <= 3 ? "hsl(var(--game-error))" : timeLeft <= 7 ? "hsl(var(--game-warning))" : "hsl(var(--primary))";
 
   return (
