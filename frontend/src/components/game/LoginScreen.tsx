@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import Rulebook from "./Rulebook";
+import LogoMark from "./LogoMark";
 
 interface LoginScreenProps {
   onConnect: () => void;
@@ -13,11 +14,16 @@ const LoginScreen = ({ onConnect }: LoginScreenProps) => {
       <div className="max-w-md w-full text-center space-y-8 slide-up">
         <div className="space-y-4">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-primary/10 border border-primary/20 mb-2">
-            <img src="/favicon.svg" alt="Beatify Logo" className="w-12 h-12" />
+            <LogoMark className="w-full h-full text-primary" />
           </div>
-          <h1 className="text-4xl font-bold tracking-tight glow-text">
-            Beatify | Guess The Song
-          </h1>
+          <div className="space-y-2">
+            <h1 className="text-4xl font-bold tracking-[-0.02em] leading-none glow-text">
+              Beatify
+            </h1>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+              Guess The Song
+            </p>
+          </div>
           <p className="text-muted-foreground text-lg leading-relaxed max-w-sm mx-auto">
             Test your music knowledge with your own Spotify playlists.
           </p>
