@@ -1,0 +1,38 @@
+# Keeps a free-tier backend warm.
+#
+# Render free instances spin down after ~15 minutes idle and take ~50 seconds
+# to boot on the next request. Game state is in Postgres so nothing is lost,
+# but the first player after a quiet spell waits.
+#
+# To enable: set a repository variable named BACKEND_URL (Settings → Secrets
+# and variables → Actions → Variables) to your backend's base URL, e.g.
+# https://beatify-api.onrender.com
+#
+# Caveats:
+#   - GitHub's scheduled runs are best-effort and can be 10-20 minutes late.
+#     UptimeRobot's free tier is more punctual if you want a tighter interval.
+#   - GitHub disables scheduled workflows after 60 days without repo activity.
+#   - A permanently warm service uses ~730 of Render's 750 free instance-hours
+#     per month. Keep this pointed at one service only.
+
+name: Keep backend awake
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping /health
+        run: |
+          if [ -z "${{ vars.BACKEND_URL }}" ]; then
+            echo "BACKEND_URL repository variable is not set; nothing to ping."
+            exit 0
+          fi
+          # --max-time 90 rather than the default: a cold start legitimately
+          # takes ~50s, and timing out would defeat the purpose.
+          curl --fail --silent --show-error --max-time 90 \
+            "${{ vars.BACKEND_URL }}/health"

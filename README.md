@@ -133,13 +133,14 @@ graph TD
         GAME_ROUTER["game.py (Core Logic)"]
         DB_SERVICE["db.py (Supabase Client)"]
         MODELS["models.py (Pydantic Res/Req)"]
-        MEMORY["In-Memory Game State Dictionary"]
+        IDENTITY["identity.py (Token → Spotify ID)"]
+        LIMITER["ratelimit.py (Per-IP Throttling)"]
     end
 
     %% Database Tier
     subgraph DB ["Database Tier (Supabase)"]
         POSTGRES[("PostgreSQL")]
-        TABLES["Tables:<br/>players, game_sessions, round_results"]
+        TABLES["Tables:<br/>players, game_sessions,<br/>round_results, active_games"]
         RPC["RPC Function:<br/>get_player_stats()"]
     end
 
@@ -151,18 +152,20 @@ graph TD
     %% Interactions
     UI -->|HTTP Requests| API_JS
     API_JS -->|REST calls| MAIN
-    HOOKS -->|Direct SQL / RPC calls| POSTGRES
+    HOOKS -->|GET /stats| API_JS
     
+    MAIN --> LIMITER
     MAIN --> AUTH_ROUTER
     MAIN --> GAME_ROUTER
     
     AUTH_ROUTER -->|OAuth flow & Profile fetch| SPOTIFY_API
     AUTH_ROUTER -->|Upsert Player| DB_SERVICE
     
+    GAME_ROUTER -->|Verify caller| IDENTITY
+    IDENTITY -->|GET /v1/me, cached| SPOTIFY_API
     GAME_ROUTER -->|Fetch Playlist & Tracks| SPOTIFY_API
-    GAME_ROUTER <-->|Read/Update| MEMORY
     GAME_ROUTER -->|Validate Payloads| MODELS
-    GAME_ROUTER -->|Persist History| DB_SERVICE
+    GAME_ROUTER -->|Load/Save game state & history| DB_SERVICE
     
     DB_SERVICE -->|Service Role DB Writes| POSTGRES
     POSTGRES --- TABLES
@@ -200,7 +203,8 @@ sequenceDiagram
     React->>FastAPI: POST /start_game (Playlist ID)
     FastAPI->>Spotify: GET /playlists/{id}/tracks
     Spotify-->>FastAPI: Returns Track JSON
-    Note over FastAPI: Randomizes tracks & caches in game memory array
+    Note over FastAPI: Randomizes & trims tracks to the fields the game needs
+    FastAPI->>Supabase: Upsert active_games (game state as JSONB)
     FastAPI-->>React: Returns 1st Round Track URI & Metadata
 
     %% Play Audio
@@ -211,20 +215,26 @@ sequenceDiagram
     %% Submit Guess
     User->>React: Types guess & submits
     React->>FastAPI: POST /submit_guess (guess payload)
+    FastAPI->>Supabase: Load active_games row
     Note over FastAPI: Fuzzy string matching against correct track
-    Note over FastAPI: Calculates points & updates game memory
+    Note over FastAPI: Calculates points, advances round
+    FastAPI->>Supabase: Persist updated game state
     FastAPI-->>React: Returns feedback (Correct/Wrong, Points)
 
     %% End Game
     User->>React: Completes final round
     React->>FastAPI: POST /save_session (Session & Rounds)
     FastAPI->>Supabase: DB Insert (game_sessions, round_results)
+    FastAPI->>Supabase: Delete active_games row
     Supabase-->>FastAPI: OK
     FastAPI-->>React: OK
 
     %% Fetch Stats
-    React->>Supabase: RPC get_player_stats()
-    Supabase-->>React: Aggregated JSON Stats
+    React->>FastAPI: GET /stats (Bearer token)
+    Note over FastAPI: Resolves the caller's own Spotify ID from the token
+    FastAPI->>Supabase: RPC get_player_stats()
+    Supabase-->>FastAPI: Aggregated JSON Stats
+    FastAPI-->>React: Stats payload
     React-->>User: Renders Dashboard
 ```
 
@@ -260,7 +270,7 @@ flowchart LR
     OutputDB -->|RPC Aggregation| OutputDashboard
 ```
 
-Game state is securely maintained in-memory server-side, tied to individual authentications, while long-term persistent gameplay history logic is delegated strictly to the PostgreSQL analytics engine via Remote Procedure Calls.
+Active game state is persisted to Postgres as a JSONB blob keyed by the player's verified Spotify ID, so a server restart or a second backend instance never orphans a game in progress. Long-term gameplay history is delegated to the PostgreSQL analytics engine via Remote Procedure Calls.
 
 ### Database Schema
 
@@ -364,17 +374,28 @@ Applying a CSS class via React state causes a brief flash of the default theme b
 ## 📦 Installation
 
 ### Prerequisites
-- Python 3.9+
+- Python 3.10+ (the codebase uses `X | None` type syntax)
 - Node.js 18+
 - A Spotify Developer app with a registered redirect URI
+- A Supabase project (free tier is sufficient)
 
 ### 1. Spotify App Setup
 
 1. Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
-2. Create an app and add `http://localhost:8000/callback` as a Redirect URI
+2. Create an app and add `http://127.0.0.1:8000/callback` as a Redirect URI
+
+   > Spotify now requires redirect URIs to use HTTPS, with an exception for
+   > explicit loopback literals. `http://localhost:...` may be rejected on a
+   > newly created app — use `127.0.0.1` locally.
 3. Copy your **Client ID** and **Client Secret**
 
-### 2. Backend
+### 2. Database Setup
+
+Run the SQL files in `backend/sql/` against your Supabase project (SQL Editor →
+New query) in numerical order. `002_active_games.sql` creates the table that
+holds in-flight game state and revokes browser-level access to the game tables.
+
+### 3. Backend
 
 ```bash
 cd backend
@@ -389,14 +410,14 @@ pip install -r requirements.txt
 
 # Create environment file
 cp .env.example .env
-# Fill in SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, REDIRECT_URI, FRONTEND_URL
+# Fill in every variable — see the table in the Deployment section below
 
 # Start the server
 uvicorn main:app --reload
 # Runs at http://localhost:8000
 ```
 
-### 3. Frontend
+### 4. Frontend
 
 ```bash
 cd frontend
@@ -410,10 +431,80 @@ npm run dev
 
 ## 🌍 Deployment
 
-Beatify is architected as a decoupled monorepo, perfectly suited for modern cloud providers:
+Beatify is a decoupled monorepo: a static frontend, a stateless FastAPI
+backend, and Supabase for all persistence. The whole thing runs on free tiers.
 
-- **Backend (Render / Railway / Heroku)**: Deploy the FastAPI backend as a standard Python web service. Simply connect the repository pointing to the `backend/` directory, set the build command to `pip install -r requirements.txt`, and the start command to `uvicorn main:app --host 0.0.0.0 --port $PORT`. Ensure you add your Spotify API credentials and `FRONTEND_URL` to your provider's environment variables.
-- **Frontend (Vercel / Netlify)**: The React/Vite frontend deploys seamlessly out-of-the-box on Vercel. Connect the repository, set the root directory to `frontend/`, the build command to `npm run build`, and output directory to `dist`. Add `VITE_API_BASE_URL` to your Vercel project's environment variables, pointing it exactly to your newly deployed backend URL.
+### Step 1 — Database
+
+In the Supabase SQL Editor, run every file in `backend/sql/` in order. Confirm
+`active_games` exists before deploying the backend; `/start_game` fails without
+it.
+
+### Step 2 — Backend (Render, free tier)
+
+New → Web Service → connect the repo, then:
+
+| Setting | Value |
+|---|---|
+| Root Directory | `backend` |
+| Runtime | Python 3 |
+| Build Command | `pip install -r requirements.txt` |
+| Start Command | `uvicorn main:app --host 0.0.0.0 --port $PORT` |
+
+Deploy once to get your service URL (e.g. `https://beatify-api.onrender.com`),
+then set the environment variables in Step 4.
+
+### Step 3 — Frontend (Vercel, free tier)
+
+| Setting | Value |
+|---|---|
+| Root Directory | `frontend` |
+| Framework Preset | Vite |
+| Build Command | `npm run build` |
+| Output Directory | `dist` |
+
+`vercel.json` already rewrites all paths to `index.html`, which the OAuth
+callback needs in order to land on `/login`.
+
+### Step 4 — Wire the environment
+
+These five values reference each other. A mismatch in any one of them produces
+a failure that looks like a bug somewhere else, so set them together.
+
+| Where | Variable | Value |
+|---|---|---|
+| Spotify Dashboard | Redirect URI | `https://<backend-url>/callback` |
+| Render | `REDIRECT_URI` | identical to the above, character for character |
+| Render | `FRONTEND_URL` | `https://<frontend-url>` (no trailing slash) |
+| Render | `ALLOWED_ORIGINS` | `https://<frontend-url>` |
+| Render | `SPOTIFY_CLIENT_ID` / `SPOTIFY_CLIENT_SECRET` | from the Spotify dashboard |
+| Render | `SESSION_SECRET` | `python -c "import secrets; print(secrets.token_urlsafe(32))"` |
+| Render | `SUPABASE_URL` / `SUPABASE_SERVICE_KEY` | Supabase → Project Settings → API |
+| Vercel | `VITE_API_BASE_URL` | `https://<backend-url>` |
+
+### Step 5 — Grant users access
+
+A Spotify app starts in **Development Mode**: 25 users maximum, each added by
+hand. Dashboard → your app → **User Management** → add each player's name and
+the email on their Spotify account. Anyone not on that list gets a 403 on every
+request. Everyone also needs **Spotify Premium** — the Web Playback SDK will
+not stream audio for free accounts.
+
+### Free-tier caveats
+
+- **Render spins the service down after ~15 minutes idle.** The next request
+  takes ~50 seconds while it boots. Game state now lives in Postgres, so
+  nothing is lost — it is a latency problem, not a correctness one. To avoid
+  it, point [UptimeRobot](https://uptimerobot.com) (free) at
+  `https://<backend-url>/health` on a 5-minute interval, or enable the
+  `.github/workflows/keepalive.yml` workflow in this repo. Note that a
+  permanently warm service consumes roughly all 750 free instance-hours per
+  month, so keep it to one service.
+- **`VITE_*` variables are baked in at build time.** Changing
+  `VITE_API_BASE_URL` requires a redeploy, not just an env var edit.
+- **Vercel preview deployments get unique URLs** that will not match
+  `ALLOWED_ORIGINS`, so previews fail CORS. Test against production, or add the
+  preview domain to the list.
 
 ---
 
@@ -430,9 +521,12 @@ Beatify is architected as a decoupled monorepo, perfectly suited for modern clou
 ## 🔐 Important Notes
 
 - **Spotify Premium is required** for audio playback via the Web Playback SDK. Free accounts cannot stream tracks in-browser.
+- **Development Mode caps the app at 25 users**, each added manually in the Spotify dashboard. Lifting that cap requires an Extended Quota Mode application, which Spotify grants to registered organizations rather than individuals.
+- **Spotify-owned editorial playlists** (Discover Weekly, Today's Top Hits, etc.) are not accessible to apps in Development Mode. Only the user's own and other user-created playlists will work.
 - **OAuth scopes requested**: `user-read-private`, `user-read-email`, `playlist-read-private`, `playlist-read-collaborative`, `streaming`, `user-read-playback-state`, `user-modify-playback-state`
-- **Game state is in-memory** — restarting the backend server clears all active game sessions
-- **Token key collision** — game state is keyed by the last 10 characters of the access token; in a multi-user deployment this is not safe. Suitable for local/personal use only in its current form
+- **Game state is persisted**, keyed by the Spotify user ID resolved from the caller's access token. Restarting the backend does not end an in-flight game, and no endpoint accepts a caller-supplied user ID.
+- **Access tokens are stored in `localStorage`**, which is readable by any script running on the page. This is the standard trade-off for a backend-less SPA session and is acceptable here; it would not be for an app handling sensitive data.
+- **Rate limits are per-instance and in-memory** (120 req/min global, tighter on expensive routes). Adequate for a single backend; point `slowapi` at Redis if you ever run more than one.
 - The frontend dev server and backend must both be running simultaneously; the Spotify redirect URI must match exactly what is registered in your Developer Dashboard
 
 ---
@@ -442,12 +536,15 @@ Beatify is architected as a decoupled monorepo, perfectly suited for modern clou
 ```
 Beatify/
 ├── backend/
-│   ├── main.py          # FastAPI app, CORS config, router registration
-│   ├── auth.py          # /login, /callback, /refresh endpoints
-│   ├── game.py          # /playlists, /start_game, /submit_guess, /next_round
-│   ├── db.py            # Supabase Python SDK logic (upserts & session history)
-│   ├── models.py        # Pydantic models (Track, GameState, GuessSubmission)
-│   ├── requirements.txt
+│   ├── main.py          # FastAPI app, CORS, rate-limit middleware, /health
+│   ├── auth.py          # /login, /callback, /refresh + signed OAuth state
+│   ├── game.py          # /playlists, /start_game, /submit_guess, /next_round, /stats
+│   ├── identity.py      # Verifies an access token → Spotify ID (TTL cached)
+│   ├── ratelimit.py     # Shared slowapi limiter, proxy-aware client key
+│   ├── db.py            # Supabase SDK: game state, history, stats RPC
+│   ├── models.py        # Pydantic models (GuessSubmission, SaveSessionRequest)
+│   ├── sql/             # Migrations to run in the Supabase SQL editor
+│   ├── requirements.txt # Pinned
 │   └── .env.example
 │
 ├── frontend/

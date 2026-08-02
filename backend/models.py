@@ -42,7 +42,9 @@ class RoundData(BaseModel):
 
 
 class SaveSessionRequest(BaseModel):
-    spotify_id: str
+    # Accepted but ignored: the server derives identity from the access token.
+    # Kept optional so an older cached frontend bundle still validates.
+    spotify_id: Optional[str] = None
     playlist_name: str
     difficulty: str
     total_rounds: int

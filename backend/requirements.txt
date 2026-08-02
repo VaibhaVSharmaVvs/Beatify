@@ -1,6 +1,10 @@
-fastapi
-uvicorn
-python-dotenv
-requests
-rapidfuzz
-supabase
+# Pinned so a deploy builds the same tree every time. Unpinned names meant the
+# hosting provider resolved whatever was newest at build time, which is how a
+# service that worked last week starts 500ing on an untouched commit.
+fastapi==0.141.1
+uvicorn[standard]==0.52.1
+python-dotenv==1.2.2
+requests==2.34.2
+rapidfuzz==3.14.5
+supabase==2.31.0
+slowapi==0.1.10
