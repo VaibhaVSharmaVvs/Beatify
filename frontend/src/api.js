@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 // Dynamically pull the freshest token directly from localStorage
 // This prevents React state from becoming desynced if the token auto-refreshes!
@@ -8,6 +8,10 @@ const getAuthHeaders = () => {
     const token = localStorage.getItem('access_token');
     return { headers: { 'Authorization': `Bearer ${token}` } };
 };
+
+// Stable Spotify user id used to key server-side game state so an access-token
+// refresh mid-game doesn't orphan the session.
+const getSpotifyId = () => localStorage.getItem('spotify_id') || '';
 
 // Configure Axios Interceptor to catch 401 Unauthorized errors globally
 axios.interceptors.response.use(
@@ -22,8 +26,9 @@ axios.interceptors.response.use(
       const refreshToken = localStorage.getItem('refresh_token');
       if (refreshToken) {
         try {
-          // Ask Python backend to silently trade the refresh token for a new access token
-          const res = await axios.get(`${BASE_URL}/refresh?refresh_token=${refreshToken}`);
+          // Ask Python backend to silently trade the refresh token for a new access token.
+          // Sent in the POST body (not the query string) so the secret never lands in logs.
+          const res = await axios.post(`${BASE_URL}/refresh`, { refresh_token: refreshToken });
           
           if (res.data && res.data.access_token) {
             const newAccessToken = res.data.access_token;
@@ -108,12 +113,13 @@ export const getUserProfile = (token, forceRefresh = false) => {
 
 export const startGame = (playlistId, token, rounds, categories) => {
     return axios.post(`${BASE_URL}/start_game`, null, {
-        params: { 
+        params: {
             playlist_id: playlistId,
             rounds: rounds,
             artist: categories.artist,
             album: categories.album,
-            year: categories.year
+            year: categories.year,
+            spotify_id: getSpotifyId()
         },
         ...getAuthHeaders()
     });
@@ -125,11 +131,17 @@ export const submitGuess = (guess, token) => {
         guess_artist: guess.guess_artist || '',
         guess_album: guess.guess_album || '',
         guess_year: guess.guess_year || ''
-    }, getAuthHeaders());
+    }, {
+        params: { spotify_id: getSpotifyId() },
+        ...getAuthHeaders()
+    });
 };
 
 export const nextRound = (token) => {
-    return axios.get(`${BASE_URL}/next_round`, getAuthHeaders());
+    return axios.get(`${BASE_URL}/next_round`, {
+        params: { spotify_id: getSpotifyId() },
+        ...getAuthHeaders()
+    });
 };
 
 export const playTrack = (token, deviceId, uri) => {

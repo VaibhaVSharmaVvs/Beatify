@@ -18,6 +18,11 @@ games = {}
 def get_spotify_headers(token: str):
     return {"Authorization": f"Bearer {token}"}
 
+def make_game_id(token: str, spotify_id: Optional[str] = None) -> str:
+    # Key game state by the stable Spotify user id so a game survives an access-token
+    # refresh mid-session. Fall back to a token slice for older clients that don't send it.
+    return spotify_id if spotify_id else token[-10:]
+
 @router.get("/me")
 def get_user_profile(authorization: str = Header(None)):
     if not authorization:
@@ -38,14 +43,23 @@ def get_playlists(authorization: str = Header(None)):
     token = authorization.split(" ")[1]
     
     headers = get_spotify_headers(token)
-    response = requests.get("https://api.spotify.com/v1/me/playlists", headers=headers)
-    if response.status_code != 200:
-        raise HTTPException(status_code=response.status_code, detail="Failed to fetch playlists")
-    
-    return response.json()
+
+    # Spotify caps each page at 50; follow the `next` cursor so users with more
+    # than 50 playlists still see all of them.
+    all_items = []
+    url = "https://api.spotify.com/v1/me/playlists?limit=50"
+    while url:
+        response = requests.get(url, headers=headers)
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail="Failed to fetch playlists")
+        data = response.json()
+        all_items.extend(data.get("items", []))
+        url = data.get("next")
+
+    return {"items": all_items, "total": len(all_items)}
 
 @router.post("/start_game")
-def start_game(playlist_id: str, rounds: int = 10, artist: bool = True, album: bool = True, year: bool = False, authorization: str = Header(None)):
+def start_game(playlist_id: str, rounds: int = 10, artist: bool = True, album: bool = True, year: bool = False, spotify_id: str = "", authorization: str = Header(None)):
     if not authorization:
         raise HTTPException(status_code=401, detail="Missing token")
     token = authorization.split(" ")[1]
@@ -102,7 +116,7 @@ def start_game(playlist_id: str, rounds: int = 10, artist: bool = True, album: b
     random.shuffle(all_tracks)
     selected_tracks = all_tracks[:sample_size]
     
-    game_id = token[-10:] # Simple ID from token
+    game_id = make_game_id(token, spotify_id)
     games[game_id] = {
         "tracks": selected_tracks,
         "current_round": 0,
@@ -139,16 +153,20 @@ def get_round_data(game_id):
     }
 
 @router.post("/submit_guess")
-def submit_guess(guess: GuessSubmission, authorization: str = Header(None)):
+def submit_guess(guess: GuessSubmission, spotify_id: str = "", authorization: str = Header(None)):
     if not authorization:
         raise HTTPException(status_code=401, detail="Missing token")
     token = authorization.split(" ")[1]
-        
-    game_id = token[-10:]
+
+    game_id = make_game_id(token, spotify_id)
     game = games.get(game_id)
     if not game:
         raise HTTPException(status_code=404, detail="Game not found")
-        
+
+    # Guard against a guess arriving after the final round (avoids an IndexError -> 500)
+    if game["current_round"] >= game["total_rounds"]:
+        raise HTTPException(status_code=400, detail="No active round to guess")
+
     current_track = game["tracks"][game["current_round"]]
     
     # Scoring
@@ -240,7 +258,7 @@ def submit_guess(guess: GuessSubmission, authorization: str = Header(None)):
         "correct_name": current_track["name"],
         "correct_artist": ", ".join([a["name"] for a in current_track["artists"]]),
         "correct_album": current_track["album"]["name"],
-        "correct_year": current_track["album"].get("release_date", "")[:4],
+        "correct_year": (current_track["album"].get("release_date") or "")[:4],
         "image_url": current_track["album"]["images"][0]["url"] if current_track["album"]["images"] else None,
         "points_earned": points,
         "total_score": game["score"],
@@ -254,11 +272,11 @@ def submit_guess(guess: GuessSubmission, authorization: str = Header(None)):
     return result
 
 @router.get("/next_round")
-def next_round(authorization: str = Header(None)):
+def next_round(spotify_id: str = "", authorization: str = Header(None)):
     if not authorization:
         raise HTTPException(status_code=401, detail="Missing token")
     token = authorization.split(" ")[1]
-    game_id = token[-10:]
+    game_id = make_game_id(token, spotify_id)
     return get_round_data(game_id)
 
 
@@ -266,15 +284,27 @@ def next_round(authorization: str = Header(None)):
 def save_session(data: SaveSessionRequest, authorization: str = Header(None)):
     if not authorization:
         raise HTTPException(status_code=401, detail="Missing token")
+    token = authorization.split(" ")[1]
+
+    # Derive identity from the verified access token rather than trusting the
+    # client-supplied spotify_id — otherwise a user could write history under
+    # someone else's id and pollute their leaderboard.
+    profile_res = requests.get("https://api.spotify.com/v1/me", headers=get_spotify_headers(token))
+    if profile_res.status_code != 200:
+        raise HTTPException(status_code=401, detail="Could not verify Spotify identity")
+    spotify_id = profile_res.json().get("id")
+    if not spotify_id:
+        raise HTTPException(status_code=400, detail="Could not resolve Spotify user id")
+
     try:
-        session_id = db_module.save_game_session(data.spotify_id, {
+        session_id = db_module.save_game_session(spotify_id, {
             "total_rounds": data.total_rounds,
             "total_score": data.total_score,
             "max_score": data.max_score,
             "difficulty": data.difficulty,
             "playlist_name": data.playlist_name,
         })
-        db_module.save_round_results(session_id, data.spotify_id, [r.model_dump() for r in data.rounds])
+        db_module.save_round_results(session_id, spotify_id, [r.model_dump() for r in data.rounds])
         return {"ok": True}
     except Exception as e:
         print(f"[save_session] error: {e}")

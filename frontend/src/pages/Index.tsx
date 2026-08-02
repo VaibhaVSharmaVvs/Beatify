@@ -72,7 +72,10 @@ const Index = () => {
 
   // 1. Check for token on mount
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    // Tokens arrive in the URL fragment (#...) so they never hit server logs or
+    // the Referer header. Fall back to the query string for backward compatibility.
+    const hash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '';
+    const params = new URLSearchParams(hash || window.location.search);
     const accessToken = params.get('access_token');
     const refreshToken = params.get('refresh_token');
     const sid = params.get('spotify_id');
@@ -355,6 +358,7 @@ const Index = () => {
           round={currentRoundData?.round || 1}
           totalRounds={settings.rounds}
           timeLeft={timeLeft}
+          timerSeconds={settings.timerSeconds}
           timerEnabled={settings.timerEnabled}
           replayEnabled={settings.replayEnabled}
           categories={settings.categories}
