@@ -56,6 +56,12 @@ const PrivacyPolicy = () => {
               Your Spotify ID and gameplay history (which tracks were guessed correctly/incorrectly and corresponding timestamps) are securely stored in our managed database (Supabase) exclusively to enable historical leaderboards and stat aggregation.
             </p>
             <p className="text-muted-foreground leading-relaxed">
+              While a game is in progress, the metadata for that round's tracks and your running score are held server-side so the game survives a page refresh or a server restart. This working copy is deleted the moment the game is saved, and any abandoned game is automatically purged within six hours.
+            </p>
+            <p className="text-muted-foreground leading-relaxed">
+              Your Spotify access and refresh tokens are held only in your own browser's local storage and are never written to our database. Clearing your browser storage or logging out removes them.
+            </p>
+            <p className="text-muted-foreground leading-relaxed">
               You may request deletion of your stored data by contacting us.
             </p>
           </section>

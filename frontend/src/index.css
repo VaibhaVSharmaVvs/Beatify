@@ -198,7 +198,14 @@
   }
 
   .glow-text {
-    text-shadow: 0 0 20px hsl(var(--primary) / 0.4);
+    text-shadow: 0 0 24px hsl(var(--primary) / 0.28);
+  }
+
+  /* A coloured halo only reads as glow when the text is lighter than the
+     surface behind it. On the light theme the same shadow sits around dark
+     text as a green smudge, and at 20px it bled onto the adjacent logo tile. */
+  .light .glow-text {
+    text-shadow: none;
   }
 
   .cover-image {
@@ -262,6 +269,26 @@
 
 .pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Expanding ring behind a live status dot. Slow and low-opacity on purpose —
+   it should register in peripheral vision, never pull the eye off the page. */
+@keyframes statusPing {
+  0%   { transform: scale(1);   opacity: 0.5; }
+  70%  { transform: scale(2.6); opacity: 0; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+
+.status-ping {
+  animation: statusPing 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-ping,
+  .pulse-glow,
+  .eq-bar {
+    animation: none;
+  }
 }
 
 @keyframes unblur-hint {

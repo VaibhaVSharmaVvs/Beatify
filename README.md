@@ -274,7 +274,61 @@ Active game state is persisted to Postgres as a JSONB blob keyed by the player's
 
 ### Database Schema
 
-![Database Schema](pics/DB-Schema.png)
+```mermaid
+erDiagram
+    players {
+        text spotify_id PK
+        text display_name
+        timestamptz created_at
+    }
+
+    active_games {
+        text spotify_id PK "verified from the access token"
+        jsonb state "tracks, round, score, history, settings"
+        timestamptz updated_at "purged after 6h"
+    }
+
+    game_sessions {
+        uuid id PK
+        text spotify_id FK
+        int total_rounds
+        int total_score
+        int max_score
+        text difficulty
+        text playlist_name
+        timestamptz created_at
+    }
+
+    round_results {
+        uuid id PK
+        uuid session_id FK
+        text spotify_id FK
+        text track_name
+        text artist_name
+        text album_name
+        text release_year
+        int points_earned
+        int max_points
+        bool name_correct
+        bool artist_correct
+        bool album_correct
+        bool year_correct
+        float response_time
+    }
+
+    players ||--o{ game_sessions : "plays"
+    players ||--o{ round_results : "accumulates"
+    game_sessions ||--|{ round_results : "contains"
+    players ||--o| active_games : "has at most one in flight"
+```
+
+`active_games` holds only in-flight state — one row per player at most, deleted
+when the game is saved and swept after 6 hours if abandoned. Everything else is
+permanent history. All four tables have RLS enabled with no policies, so they
+are reachable only through the backend's `service_role` client.
+
+> The original three-table diagram is preserved at
+> [`pics/DB-Schema.png`](pics/DB-Schema.png); it predates `active_games`.
 
 ### Error Handling & Exception Flow
 
@@ -560,11 +614,14 @@ Beatify/
 │       │   ├── GamePlay.tsx
 │       │   ├── RoundResult.tsx
 │       │   ├── GameOver.tsx
+│       │   ├── BrandLockup.tsx     # Logo + wordmark + descriptor, two sizes
+│       │   ├── ConnectionBadge.tsx # Web Playback SDK online/offline pill
+│       │   ├── LogoMark.tsx        # Waveform mark, inherits currentColor
 │       │   ├── Rulebook.tsx
 │       │   └── ThemeToggle.tsx
 │       ├── hooks/
 │       │   ├── use-theme.ts  # Dark/light mode with localStorage persistence
-│       │   └── use-stats.ts  # Executes Postgres RPC calls for user analytics
+│       │   └── use-stats.ts  # Fetches aggregated analytics from GET /stats
 │       └── api.js            # Axios instance, interceptor, all API calls
 │
 └── pics/                     # UI screenshots (dark + light variants)

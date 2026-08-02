@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Send, Eye, Repeat } from "lucide-react";
+import BrandLockup from "./BrandLockup";
+import ConnectionBadge from "./ConnectionBadge";
 
 interface GamePlayProps {
   score: number;
@@ -58,31 +60,14 @@ const GamePlay = ({ score, round, totalRounds, timeLeft, timerSeconds, timerEnab
     <div className="min-h-screen px-4 py-8">
       <div className="max-w-lg mx-auto space-y-6">
         {/* Header bar */}
-        <div className="flex items-center justify-between fade-in">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">Beatify | Guess The Song</h1>
-            <span className="score-display text-muted-foreground text-sm">Score: {score}</span>
-          </div>
-          <div
-            className="game-badge"
-            style={{
-              color: isSpotifyConnected ? undefined : 'hsl(var(--muted-foreground))',
-              borderColor: isSpotifyConnected ? undefined : 'hsl(var(--border))'
-            }}
-          >
-            <span
-              style={{
-                display: 'inline-block',
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                backgroundColor: isSpotifyConnected ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
-                marginRight: '6px',
-                animation: isSpotifyConnected ? 'pulse 2s infinite' : 'none'
-              }}
-            />
-            {isSpotifyConnected ? 'Online' : 'Offline'}
-          </div>
+        <div className="flex items-center justify-between gap-4 fade-in">
+          {/* Mid-game the score matters more than the tagline, so it takes the
+              descriptor slot — same tracked micro-label as the ROUND counter. */}
+          <BrandLockup
+            size="sm"
+            descriptor={<>Score <span className="score-display text-foreground">{score}</span></>}
+          />
+          <ConnectionBadge connected={isSpotifyConnected} />
         </div>
 
         {/* Round & Timer */}

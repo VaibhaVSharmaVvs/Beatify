@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import Rulebook from "./Rulebook";
+import BrandLockup from "./BrandLockup";
+import ConnectionBadge from "./ConnectionBadge";
 import { StatsDashboardLeft, StatsDashboardRight } from "./StatsDashboard";
 import { useStats } from "@/hooks/use-stats";
 
@@ -84,37 +86,9 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
           </div>
           
           <div className="max-w-2xl mx-auto xl:mx-0 w-full fade-in">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center border border-primary/30 shrink-0">
-                    <img src="/favicon.svg" alt="Beatify Logo" className="w-6 h-6" />
-                  </div>
-                  <h1 className="text-3xl font-bold tracking-tight">Beatify <span className="text-muted-foreground font-normal">| Guess The Song</span></h1>
-                </div>
-                <div className="flex items-center gap-3 mt-3">
-                  <span
-                    className="game-badge"
-                    style={{
-                      color: isSpotifyConnected ? undefined : 'hsl(var(--muted-foreground))',
-                      borderColor: isSpotifyConnected ? undefined : 'hsl(var(--border))'
-                    }}
-                  >
-                    <span
-                      style={{
-                        display: 'inline-block',
-                        width: '8px',
-                        height: '8px',
-                        borderRadius: '50%',
-                        backgroundColor: isSpotifyConnected ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))',
-                        marginRight: '6px',
-                        animation: isSpotifyConnected ? 'pulse 2s infinite' : 'none'
-                      }}
-                    />
-                    {isSpotifyConnected ? 'Online' : 'Offline'}
-                  </span>
-                </div>
-              </div>
+            <div className="flex items-center justify-between gap-4">
+              <BrandLockup size="lg" />
+              <ConnectionBadge connected={isSpotifyConnected} />
             </div>
           </div>
           <div className="hidden xl:flex items-end pb-1 relative justify-end">
