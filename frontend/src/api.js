@@ -9,10 +9,6 @@ const getAuthHeaders = () => {
     return { headers: { 'Authorization': `Bearer ${token}` } };
 };
 
-// Stable Spotify user id used to key server-side game state so an access-token
-// refresh mid-game doesn't orphan the session.
-const getSpotifyId = () => localStorage.getItem('spotify_id') || '';
-
 // Configure Axios Interceptor to catch 401 Unauthorized errors globally
 axios.interceptors.response.use(
   (response) => response,
@@ -118,8 +114,7 @@ export const startGame = (playlistId, token, rounds, categories) => {
             rounds: rounds,
             artist: categories.artist,
             album: categories.album,
-            year: categories.year,
-            spotify_id: getSpotifyId()
+            year: categories.year
         },
         ...getAuthHeaders()
     });
@@ -131,17 +126,11 @@ export const submitGuess = (guess, token) => {
         guess_artist: guess.guess_artist || '',
         guess_album: guess.guess_album || '',
         guess_year: guess.guess_year || ''
-    }, {
-        params: { spotify_id: getSpotifyId() },
-        ...getAuthHeaders()
-    });
+    }, getAuthHeaders());
 };
 
 export const nextRound = (token) => {
-    return axios.get(`${BASE_URL}/next_round`, {
-        params: { spotify_id: getSpotifyId() },
-        ...getAuthHeaders()
-    });
+    return axios.get(`${BASE_URL}/next_round`, getAuthHeaders());
 };
 
 export const playTrack = (token, deviceId, uri) => {
@@ -157,4 +146,11 @@ export const playTrack = (token, deviceId, uri) => {
 
 export const saveSession = (payload) => {
     return axios.post(`${BASE_URL}/save_session`, payload, getAuthHeaders());
+};
+
+// Career stats. Previously a direct Supabase RPC from the browser using the
+// public anon key, which let any caller read any player's history by passing
+// their id. Now served by the backend for the token holder only.
+export const getStats = () => {
+    return axios.get(`${BASE_URL}/stats`, getAuthHeaders());
 };
