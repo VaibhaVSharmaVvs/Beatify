@@ -105,6 +105,14 @@ const Index = () => {
     }
   }, []);
 
+  // Every phase renders at the same route, so React swaps the screen but the
+  // browser keeps the scroll offset. Starting a game from a playlist near the
+  // bottom of the settings list would otherwise drop you into the round with
+  // the header already scrolled off. Reset on every phase change.
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+  }, [phase]);
+
   // 2. Fetch playlists & profile when token is ready
   useEffect(() => {
     if (token) {
@@ -319,7 +327,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background relative">
+    <div className="flex-1 flex flex-col bg-background relative">
       <ThemeToggle theme={theme} onToggle={toggle} />
       {userProfile && phase !== "login" && (
         <div className="absolute top-5 left-5 z-50 flex items-center gap-3 bg-card/80 backdrop-blur-md rounded-full pr-4 pl-1 py-1 border border-border shadow-sm">
