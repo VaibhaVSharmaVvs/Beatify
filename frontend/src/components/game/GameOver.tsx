@@ -56,8 +56,8 @@ const GameOver = ({ totalScore, totalRounds, categories, history, isStartingGame
   }, []);
 
   return (
-    <div className="min-h-screen px-4 py-8 flex flex-col items-center justify-start overflow-y-auto">
-      <div className="max-w-xl w-full space-y-6 text-center mt-6">
+    <div className="flex-1 px-4 py-6 flex flex-col items-center justify-center">
+      <div className="max-w-xl w-full space-y-5 text-center">
         {/* Game Over Title & Trophy */}
         <div className="fade-in space-y-3">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20">
@@ -145,12 +145,12 @@ const GameOver = ({ totalScore, totalRounds, categories, history, isStartingGame
         </div>
 
         {/* Songs Played History */}
-        <div className="slide-up space-y-2 w-full pt-2" style={{ animationDelay: "0.2s" }}>
+        <div className="slide-up space-y-2 w-full" style={{ animationDelay: "0.2s" }}>
           <p className="text-xs text-muted-foreground uppercase tracking-wider text-left pl-2">Match History</p>
-          <div className="flex overflow-x-auto gap-4 pb-4 snap-x flex-nowrap align-top">
+          <div className="flex overflow-x-auto gap-3 pb-2 snap-x flex-nowrap align-top">
             {history.map((song, i) => (
-              <div key={i} className="flex-none w-[140px] snap-start">
-                <div className="w-[140px] h-[140px] mb-2 relative group rounded-xl overflow-hidden border border-border/50">
+              <div key={i} className="flex-none w-[116px] snap-start">
+                <div className="w-[116px] h-[116px] mb-2 relative group rounded-xl overflow-hidden border border-border/50">
                   <img src={song.image_url} alt={song.correct_name} className="cover-image w-full h-full group-hover:scale-105 transition-transform duration-500" />
                   
                   {/* Point Badge */}
@@ -173,23 +173,27 @@ const GameOver = ({ totalScore, totalRounds, categories, history, isStartingGame
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="slide-up max-w-sm mx-auto space-y-3 pt-4 pb-8" style={{ animationDelay: "0.25s" }}>
-          <Button variant="spotify" size="lg" className="w-full" onClick={onPlayAgain} disabled={isStartingGame}>
+        {/* Actions — side by side above sm so both stay above the fold on a
+            laptop viewport; stacked on narrow screens where they wouldn't fit. */}
+        <div
+          className="slide-up max-w-md mx-auto flex flex-col sm:flex-row gap-3 pt-1"
+          style={{ animationDelay: "0.25s" }}
+        >
+          <Button variant="spotify" size="lg" className="w-full sm:flex-1" onClick={onPlayAgain} disabled={isStartingGame}>
             {isStartingGame ? (
               <span className="flex items-center justify-center gap-2">
                 <Loader2 className="w-5 h-5 animate-spin" />
-                Loading Tracks...
+                Loading…
               </span>
             ) : (
               <>
                 <RotateCcw className="w-5 h-5 mr-2" />
-                Play Again (Same Settings)
+                Play Again
               </>
             )}
           </Button>
-          <Button variant="outline" size="lg" className="w-full bg-transparent border-card hover:bg-card/50" onClick={onChangeSettings} disabled={isStartingGame}>
-            Change Settings / Playlist
+          <Button variant="outline" size="lg" className="w-full sm:flex-1 bg-transparent border-border hover:bg-card/50" onClick={onChangeSettings} disabled={isStartingGame}>
+            Change Settings
           </Button>
         </div>
       </div>
