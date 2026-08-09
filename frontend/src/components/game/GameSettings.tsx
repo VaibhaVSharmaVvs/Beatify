@@ -77,7 +77,7 @@ const GameSettings = ({ score, playlists, onStartGame, isLoadingPlaylists, isSta
   const { stats, loading: statsLoading } = useStats(spotifyId ?? null);
 
   return (
-    <div className="min-h-screen px-4 py-8">
+    <div className="flex-1 px-4 py-8">
       <div className="max-w-7xl mx-auto">
         {/* Header Row (aligned above center column) */}
         <div className="xl:grid xl:grid-cols-[280px_1fr_280px] xl:gap-6 mb-6">

@@ -136,7 +136,7 @@ const RoundResult = ({ albumArt, songName, artists, albumName, releaseYear, poin
   }, [pointsEarned, maxScore]);
 
   return (
-    <div className="min-h-screen px-4 py-8 flex items-center justify-center">
+    <div className="flex-1 px-4 py-8 flex items-center justify-center">
       <div className="max-w-sm w-full space-y-6 text-center">
         {/* Result badge */}
         <div className="fade-in">

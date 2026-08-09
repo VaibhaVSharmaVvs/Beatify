@@ -10,7 +10,7 @@ interface LoginScreenProps {
 
 const LoginScreen = ({ onConnect }: LoginScreenProps) => {
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="flex-1 flex items-center justify-center px-4 py-8">
       <div className="max-w-md w-full text-center space-y-8 slide-up">
         <div className="space-y-4">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-primary/10 border border-primary/20 mb-2">
