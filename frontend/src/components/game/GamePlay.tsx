@@ -57,7 +57,7 @@ const GamePlay = ({ score, round, totalRounds, timeLeft, timerSeconds, timerEnab
   const timerColor = timeLeft <= 3 ? "hsl(var(--game-error))" : timeLeft <= 7 ? "hsl(var(--game-warning))" : "hsl(var(--primary))";
 
   return (
-    <div className="min-h-screen px-4 py-8">
+    <div className="flex-1 px-4 py-8">
       <div className="max-w-lg mx-auto space-y-6">
         {/* Header bar */}
         <div className="flex items-center justify-between gap-4 fade-in">
